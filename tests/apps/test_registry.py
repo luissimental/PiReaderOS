@@ -1,0 +1,184 @@
+import pytest
+import sys
+
+from pireaderos.apps.registry import (
+    APP_REGISTRY, get_app_class, unload_app_module
+)
+
+
+@pytest.fixture
+def mock_module(mocker):
+    mock = mocker.Mock()
+    mock.ClassName = "returns_classname"
+    return mock
+
+
+@pytest.fixture
+def mock_import_module(mocker):
+    return mocker.patch("pireaderos.apps.registry.importlib.import_module")
+
+
+@pytest.fixture
+def app_registery_single():
+    return {"ClassName": "app.module"}
+
+
+class TestGetAppClassFunction:
+    def test_app_class_is_valid_unittest(
+        self, mock_module, mock_import_module, app_registery_single
+    ):
+        mock_import_module.return_value = mock_module
+        result = get_app_class("ClassName", app_registery_single)
+
+        mock_import_module.assert_called_once_with("app.module")
+        assert result == "returns_classname"
+
+    @pytest.mark.parametrize("app_class", APP_REGISTRY.keys())
+    def test_app_class_is_valid_integration(
+        self, app_class
+    ):
+        result = get_app_class(app_class)
+        assert result is not None
+        assert result.__name__ == app_class
+
+    @pytest.mark.parametrize("app_class", [None, 1, object()])
+    def test_app_class_is_not_str_type_unittest(
+        self, mock_module, mock_import_module, app_registery_single, app_class
+    ):
+        mock_import_module.return_value = mock_module
+        result = get_app_class(app_class, app_registery_single)
+
+        mock_import_module.assert_not_called()
+        assert result is None
+
+    @pytest.mark.parametrize("app_class", [None, 1, object()])
+    def test_app_class_is_not_str_type_integration(
+        self, app_class
+    ):
+        result = get_app_class(app_class)
+        assert result is None
+
+    @pytest.mark.parametrize("app_class", ["", "InvalidApp"])
+    def test_app_class_is_missing_in_app_registry_unittest(
+        self, mock_module, mock_import_module, app_registery_single, app_class
+    ):
+        mock_import_module.return_value = mock_module
+        result = get_app_class(app_class, app_registery_single)
+
+        mock_import_module.assert_not_called()
+        assert result is None
+
+    @pytest.mark.parametrize("app_class", ["", "InvalidApp"])
+    def test_app_class_is_missing_in_app_registry_integration(
+        self, app_class
+    ):
+        result = get_app_class(app_class)
+        assert result is None
+
+    def test_app_class_cannot_import_module_unittest(
+        self, mock_import_module, app_registery_single
+    ):
+        mock_import_module.side_effect = ModuleNotFoundError
+        result = get_app_class("ClassName", app_registery_single)
+
+        mock_import_module.assert_called_once_with("app.module")
+        assert result is None
+
+    def test_app_class_cannot_import_module_integration(
+        self, app_registery_single
+    ):
+        result = get_app_class("ClassName", app_registery_single)
+        assert result is None
+
+    def test_app_class_cannot_getattr_from_module_unittest(
+        self, mock_import_module, app_registery_single
+    ):
+        mock_import_module.return_value = None
+        result = get_app_class("ClassName", app_registery_single)
+
+        mock_import_module.assert_called_once_with("app.module")
+        assert result is None
+
+    def test_app_class_cannot_getattr_from_module_integration(self):
+        app_reg = {"InvalidClass": "pireaderos.apps.home"}
+        result = get_app_class("InvalidClass", app_reg)
+        assert result is None
+
+
+class TestUnloadAppModuleFunction:
+    def test_app_class_is_valid_unittest(
+        self, monkeypatch, app_registery_single
+    ):
+        monkeypatch.setitem(sys.modules, "app.module", "ClassName")
+        assert "app.module" in sys.modules
+
+        result = unload_app_module("ClassName", app_registery_single)
+        assert "app.module" not in sys.modules
+        assert result is True
+
+    @pytest.mark.parametrize("app_class, module_name", APP_REGISTRY.items())
+    def test_app_class_is_valid_integration(
+        self, monkeypatch, app_class, module_name
+    ):
+        monkeypatch.setitem(sys.modules, module_name, "HomeApp")
+        assert module_name in sys.modules
+
+        result = unload_app_module(app_class)
+        assert module_name not in sys.modules
+        assert result is True
+
+    @pytest.mark.parametrize("app_class", [None, 1, object()])
+    def test_app_class_is_not_str_type_unittest(
+        self, monkeypatch, app_registery_single, app_class
+    ):
+        monkeypatch.setitem(sys.modules, "app.module", "ClassName")
+        assert "app.module" in sys.modules
+
+        result = unload_app_module(app_class, app_registery_single)
+        assert "app.module" in sys.modules
+        assert result is False
+
+    @pytest.mark.parametrize("app_class", [None, 1, object()])
+    def test_app_class_is_not_str_type_integration(
+        self, app_class
+    ):
+        result = unload_app_module(app_class)
+        assert result is False
+
+    @pytest.mark.parametrize("app_class", ["", "InvalidClass"])
+    def test_app_class_is_missing_in_app_registry_unittest(
+        self, monkeypatch, app_registery_single, app_class
+    ):
+        monkeypatch.setitem(sys.modules, "app.module", "ClassName")
+        assert "app.module" in sys.modules
+
+        result = unload_app_module(app_class, app_registery_single)
+        assert "app.module" in sys.modules
+        assert result is False
+
+    @pytest.mark.parametrize("app_class", ["", "InvalidClass"])
+    def test_app_class_is_missing_in_app_registry_integration(
+        self, app_class
+    ):
+        result = unload_app_module(app_class)
+        assert result is False
+
+    def test_app_class_is_valid_but_missing_in_sys_modules_unittest(
+        self, app_registery_single
+    ):
+        assert "app.module" not in sys.modules
+
+        result = unload_app_module("ClassName", app_registery_single)
+        assert "app.module" not in sys.modules
+        assert result is False
+
+    @pytest.mark.parametrize("app_class, module_name", APP_REGISTRY.items())
+    def test_app_class_is_valid_but_missing_in_sys_modules_integration(
+        self, monkeypatch, app_class, module_name
+    ):
+        monkeypatch.delitem(sys.modules, module_name, raising=False)
+        assert module_name not in sys.modules
+
+        result = unload_app_module(app_class)
+        assert module_name not in sys.modules
+        assert result is False

@@ -1,12 +1,8 @@
-import pytest
-
 from pireaderos.core.manager import AppManager
 
 
 class TestAppManagerInitialization:
-    @pytest.mark.unittest
-    def test_init_is_working(self, mocker):
-
+    def test_init_is_working_unittest(self, mocker):
         MockCurrentApp = mocker.patch("pireaderos.core.manager.CurrentApp")
         MockSwitchApp = mocker.patch(
             "pireaderos.core.manager.AppManager._switch_app")
