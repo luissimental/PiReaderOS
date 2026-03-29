@@ -1,5 +1,8 @@
+from pireaderos.core.manager import AppManager
+
+
 def main():
-    pass
+    manager = AppManager()
 
 
 if __name__ == "__main__":

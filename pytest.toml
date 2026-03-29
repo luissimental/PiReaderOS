@@ -1,0 +1,5 @@
+[pytest]
+markers = [
+    "unittest: isolated logic tests (fast)",
+    "integration: real runtime tests (slower)"
+]
