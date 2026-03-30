@@ -1,7 +1,10 @@
+from pireaderos.apps.base import BaseApp
+
+
 class CurrentApp:
     def __init__(self):
-        self._app = None
-        self._app_name = None
+        self._app: BaseApp | None = None
+        self._app_name: str | None = None
 
     @property
     def app(self):
