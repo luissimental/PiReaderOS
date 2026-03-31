@@ -11,6 +11,7 @@ class AppManager:
         self._switch_app("HomeApp")
 
     def _switch_app(self, app_name: str):
+        """Clean up and remove current app to load specified app"""
         if self.current.app_name == app_name:
             return
 

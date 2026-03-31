@@ -40,7 +40,7 @@ def app_manager_unittest(mocker):
 
 @pytest.fixture
 def app_manager_integration(mocker):
-    """Patch critical app methods for isolation"""
+    """Patch __init__ and app methods for isolation"""
     mocker.patch.object(AppManager, "__init__", return_value=None)
     for class_name, module_name in APP_REGISTRY.items():
         # Patch in original module due to dynamic import
@@ -76,6 +76,7 @@ class TestAppManagerSwitchingApp:
         self, mocker, mock_get_app_class, mock_current_app_with,
         mock_unload_app_module, app_manager_unittest
     ):
+        """Switch app successfully when a different app is already loaded"""
         mock_new_app_class = mocker.Mock()
         mock_get_app_class.return_value = mock_new_app_class  # new app class
 
@@ -100,6 +101,7 @@ class TestAppManagerSwitchingApp:
     def test_app_name_is_valid_with_different_existing_app_integration(
         self, app_manager_integration
     ):
+        """Switch app successfully when a different app is already loaded"""
         app_manager_integration.current = CurrentApp()
         app_manager_integration.current._app = HomeApp(
             app_manager_integration.events)
@@ -113,6 +115,7 @@ class TestAppManagerSwitchingApp:
         self, mocker, mock_get_app_class, mock_current_app_with,
         mock_unload_app_module, app_manager_unittest
     ):
+        """Switch app successfully when no app is loaded"""
         mock_new_app_class = mocker.Mock()
         mock_get_app_class.return_value = mock_new_app_class  # new app class
 
@@ -138,6 +141,7 @@ class TestAppManagerSwitchingApp:
     def test_app_name_is_valid_with_no_existing_app_integration(
         self, app_manager_integration, app_name
     ):
+        """Switch app successfully when no app is loaded"""
         app_manager_integration.current = CurrentApp()
         app_manager_integration._switch_app(app_name)
 
@@ -149,6 +153,7 @@ class TestAppManagerSwitchingApp:
         self, mocker, mock_get_app_class, mock_current_app_with,
         mock_unload_app_module, app_manager_unittest
     ):
+        """Switch app successfully when the same app is already loaded"""
         mock_new_app_class = mocker.Mock()
         mock_get_app_class.return_value = mock_new_app_class  # new app class
 
@@ -178,6 +183,7 @@ class TestAppManagerSwitchingApp:
     def test_app_name_is_valid_with_same_existing_app_integration(
         self, app_manager_integration
     ):
+        """Switch app successfully when the same app is already loaded"""
         app_manager_integration.current = CurrentApp()
         app_manager_integration.current._app = existing_app = HomeApp(
             app_manager_integration.events)
@@ -192,6 +198,7 @@ class TestAppManagerSwitchingApp:
         self, mocker, mock_get_app_class, mock_current_app_with,
         mock_unload_app_module, app_manager_unittest,  app_name
     ):
+        """Switch app fails when app_name is not registered or a string"""
         mock_new_app_class = mocker.Mock()
         mock_get_app_class.return_value = None  # new app class
 
@@ -217,6 +224,7 @@ class TestAppManagerSwitchingApp:
     def test_app_name_is_invalid_integration(
         self, app_manager_integration, app_name
     ):
+        """Switch app fails when app_name is not registered or a string"""
         app_manager_integration.current = CurrentApp()
         app_manager_integration.current._app = existing_app = HomeApp(
             app_manager_integration.events)

@@ -6,6 +6,7 @@ class EventManager:
         self.event_to_subs: dict[str, set[Callable]] = {}
 
     def subscribe(self, event_name: str, callback: Callable):
+        """Register a function to be called when an event occurs"""
         if type(event_name) is not str:
             return
         if not callable(callback):
@@ -16,16 +17,20 @@ class EventManager:
             self.event_to_subs[event_name] = subscribers = set()
         subscribers.add(callback)
 
-    def unsubscribe(self, event_name: str, callback: Callable, _use_own: dict | None = None):
+    def unsubscribe(
+        self, event_name: str, callback: Callable,
+        _use_dict: dict | None = None
+    ):
+        """Remove callback function from specified event"""
         if type(event_name) is not str:
             return
         if not callable(callback):
             return
 
-        if _use_own is None:
+        if _use_dict is None:
             event_to_subs_dict = self.event_to_subs
         else:
-            event_to_subs_dict = _use_own
+            event_to_subs_dict = _use_dict
 
         subscribers = event_to_subs_dict.get(event_name)
         if subscribers is None:
@@ -36,6 +41,7 @@ class EventManager:
             del event_to_subs_dict[event_name]
 
     def unsubscribe_all(self, callback: Callable):
+        """Remove callback function from all subscribed events"""
         if not callable(callback):
             return
 
@@ -45,6 +51,7 @@ class EventManager:
         self.event_to_subs = event_to_subs_copy
 
     def emit(self, event_name: str, *args, **kwargs):
+        """Emit event to subscribers with specified args and kwargs"""
         if type(event_name) is not str:
             return
 

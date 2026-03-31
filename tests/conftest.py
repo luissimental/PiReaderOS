@@ -3,6 +3,7 @@ import warnings
 
 
 def pytest_collection_modifyitems(items):
+    """Assign tests with 'unittest' or 'integration' markers"""
     for item in items:
         test_type = item.originalname.split("_")[-1]
         if test_type == "unittest":

@@ -13,6 +13,7 @@ class TestEventManagerInitialization:
 
 class TestEventManagerSubscribe:
     def test_valid_callback_subscribes_to_nonexisting_valid_event_unittest(self, mocker):
+        """Subscribe callback to event successfully when event does not exist yet"""
         mock_callback = mocker.Mock()
         events = EventManager()
 
@@ -24,6 +25,8 @@ class TestEventManagerSubscribe:
         assert mock_callback in subscribers
 
     def test_valid_callback_subscribes_to_existing_valid_event_unittest(self, mocker):
+        """Subscribe callback to event successfully when event exists and
+        callback is not subscribed to event"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()
@@ -38,6 +41,7 @@ class TestEventManagerSubscribe:
         assert mock_callback2 in subscribers
 
     def test_valid_callback_subscribes_to_multiple_existing_valid_events_unittest(self, mocker):
+        """Subscribe callback to multiple existing events successfully"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         mock_callback3 = mocker.Mock()
@@ -64,6 +68,7 @@ class TestEventManagerSubscribe:
         assert mock_callback3 in subscribers
 
     def test_valid_callback_doesnt_subscribe_to_event_already_subscribed_unittest(self, mocker):
+        """Subscribe callback to event fails when callback is already subscribed"""
         mock_callback = mocker.Mock()
         events = EventManager()
         events.event_to_subs = {"MockEvent": {mock_callback}}
@@ -77,6 +82,7 @@ class TestEventManagerSubscribe:
 
     @pytest.mark.parametrize("event_name", [None, 1, object()])
     def test_valid_callback_doesnt_subscribe_to_invalid_event_type_unittest(self, mocker, event_name):
+        """Subscribe callback to event fails when event_name is not a string"""
         mock_callback = mocker.Mock()
         events = EventManager()
         original_dict = events.event_to_subs
@@ -87,6 +93,7 @@ class TestEventManagerSubscribe:
 
     @pytest.mark.parametrize("callback", [None, 1, object()])
     def test_invalid_callback_type_doesnt_subscribe_to_nonexisting_valid_event_unittest(self, callback):
+        """Subscribe callback to nonexisting event fails when callback is not callable"""
         events = EventManager()
         original_dict = events.event_to_subs
 
@@ -96,6 +103,7 @@ class TestEventManagerSubscribe:
 
     @pytest.mark.parametrize("callback", [None, 1, object()])
     def test_invalid_callback_type_doesnt_subscribe_to_existing_valid_event_unittest(self, mocker, callback):
+        """Subscribe callback to existing event fails when callback is not callable"""
         mock_callback = mocker.Mock()
         mock_events_dict = {"MockEvent": {mock_callback}}
         events = EventManager()
@@ -108,6 +116,7 @@ class TestEventManagerSubscribe:
 
 class TestEventManagerUnsubscribe:
     def test_valid_callback_unsubscribes_from_existing_valid_event_with_multiple_subs_unittest(self, mocker):
+        """Unsubscribe callback from event successfully when event has multiple subscribers"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()
@@ -121,6 +130,7 @@ class TestEventManagerUnsubscribe:
         assert mock_callback1 in subscribers
 
     def test_valid_callback_unsubscribes_from_existing_valid_event_with_one_sub_unittest(self, mocker):
+        """Unsubscribe callback from event successfully when callback is the only subscriber"""
         mock_callback = mocker.Mock()
         events = EventManager()
         events.event_to_subs = {"MockEvent": {mock_callback}}
@@ -131,6 +141,7 @@ class TestEventManagerUnsubscribe:
         assert subscribers is None
 
     def test_valid_callback_unsubscribes_from_multiple_existing_events_unittest(self, mocker):
+        """Unsubscribe callback from multiple events successfully"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         mock_callback3 = mocker.Mock()
@@ -155,6 +166,7 @@ class TestEventManagerUnsubscribe:
         assert mock_callback2 in subscribers
 
     def test_valid_callback_doesnt_unsubscribe_from_nonexistant_valid_event_unittest(self, mocker):
+        """Unsubscribe callback from event fails when event does not exist"""
         mock_callback = mocker.Mock()
         events = EventManager()
         events.event_to_subs = {"MockEvent": {mock_callback}}
@@ -167,6 +179,7 @@ class TestEventManagerUnsubscribe:
         assert mock_callback in subscribers
 
     def test_valid_callback_doesnt_unsubscribe_from_existing_event_not_subscribed_unittest(self, mocker):
+        """Unsubscribe callback from event fails when callback is not subscribed to event"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()
@@ -181,6 +194,7 @@ class TestEventManagerUnsubscribe:
 
     @pytest.mark.parametrize("event_name", [None, 1, object()])
     def test_valid_callback_doesnt_unsubscribe_from_invalid_event_type_unittest(self, mocker, event_name):
+        """Unsubscribe callback from event fails when event_name is not a string"""
         mock_callback = mocker.Mock()
         events = EventManager()
         events.event_to_subs = {"MockEvent": {mock_callback}}
@@ -194,6 +208,7 @@ class TestEventManagerUnsubscribe:
 
     @pytest.mark.parametrize("callback", [None, 1, object()])
     def test_invalid_callback_doesnt_unsubscribe_from_event_unittest(self, mocker, callback):
+        """Unsubscribe callback from event fails when callback is not callable"""
         mock_callback = mocker.Mock()
         events = EventManager()
         events.event_to_subs = {"MockEvent": {mock_callback}}
@@ -208,6 +223,8 @@ class TestEventManagerUnsubscribe:
 
 class TestEventManagerUnsubscribeAll:
     def test_valid_callback_unsubscribes_from_one_event_with_multiple_subs_unittest(self, mocker):
+        """Unsubscribe callback from all events successfully when callback is
+        only subscribed to one event that contains multiple subscribers"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()
@@ -221,6 +238,8 @@ class TestEventManagerUnsubscribeAll:
         assert mock_callback1 in subscribers
 
     def test_valid_callback_unsubscribes_from_one_event_with_one_sub_unittest(self, mocker):
+        """Unsubscribe callback from all events successfully when callback is
+        only subscribed to one event that contains one subscriber"""
         mock_callback = mocker.Mock()
         events = EventManager()
         events.event_to_subs = {"MockEvent": {mock_callback}}
@@ -231,6 +250,8 @@ class TestEventManagerUnsubscribeAll:
         assert subscribers is None
 
     def test_valid_callback_unsubscribes_from_multiple_events_unittest(self, mocker):
+        """Unsubscribe callback from all events successfully when callback is
+        subscribed to multiple events"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         mock_callback3 = mocker.Mock()
@@ -253,6 +274,8 @@ class TestEventManagerUnsubscribeAll:
         assert mock_callback2 in subscribers
 
     def test_valid_callback_doesnt_unsubscribe_from_event_not_subscribed_unittest(self, mocker):
+        """Unsubscribe callback from all events fails when callback is not
+        subscribed to any events"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()
@@ -267,6 +290,8 @@ class TestEventManagerUnsubscribeAll:
 
     @pytest.mark.parametrize("callback", [None, 1, object()])
     def test_invalid_callback_doesnt_unsubscribe_unittest(self, mocker, callback):
+        """Unsubscribe callback from all events fails when callback is not
+        callable"""
         mock_callback = mocker.Mock()
         events = EventManager()
         events.event_to_subs = {"MockEvent": {mock_callback}}
@@ -281,6 +306,7 @@ class TestEventManagerUnsubscribeAll:
 
 class TestEventManagerEmitEvent:
     def test_event_emits_to_all_subscribers_and_calls_with_proper_no_args_unittest(self, mocker):
+        """Emit event to subscribers successfully when callbacks do not need args"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()
@@ -295,6 +321,7 @@ class TestEventManagerEmitEvent:
         mock_callback2.assert_called_once()
 
     def test_event_emits_to_all_subscribers_and_calls_with_proper_args_unittest(self, mocker):
+        """Emit event to subscribers successfully when callbacks require args"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()
@@ -309,6 +336,8 @@ class TestEventManagerEmitEvent:
         mock_callback2.assert_called_once_with("a1", "a2", kw1="k1")
 
     def test_event_attempts_to_emit_to_subscribers_with_improper_args_unittest(self, mocker):
+        """Emit event to subscribers fails when callbacks are called with
+        invalid args"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         mock_callback1.side_effect = TypeError
@@ -325,6 +354,8 @@ class TestEventManagerEmitEvent:
         mock_callback2.assert_called_once_with("a2", kw1="k1")
 
     def test_event_attempts_to_emit_to_subscribers_with_improper_args_integration(self):
+        """Emit event to subscribers fails when callbacks are called with
+        invalid args"""
         must_not_be_called = []
         def callback1(a1, a2, kw1=None): must_not_be_called.append(1)
         def callback2(a1, a2, kw1=None): must_not_be_called.append(2)
@@ -339,6 +370,7 @@ class TestEventManagerEmitEvent:
         assert len(must_not_be_called) == 0
 
     def test_event_doesnt_exist_no_subscribers_called_unittest(self, mocker):
+        """Emit event to subscribers fails when event does not exist"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()
@@ -354,6 +386,7 @@ class TestEventManagerEmitEvent:
 
     @pytest.mark.parametrize("event_name", [None, 1, object()])
     def test_invalid_event_type_no_subscribers_called_unittest(self, mocker, event_name):
+        """Emit event to subscribers fails when event_name is not a string"""
         mock_callback1 = mocker.Mock()
         mock_callback2 = mocker.Mock()
         events = EventManager()

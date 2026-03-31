@@ -10,12 +10,13 @@ APP_REGISTRY: dict[str, str] = {
 
 
 def get_app_class(
-        app_class: str, app_registry: dict[str, str] = APP_REGISTRY
+        app_class: str, _app_registry: dict[str, str] = APP_REGISTRY
 ) -> type[BaseApp] | None:
+    """Dynamically import and return app class"""
     if type(app_class) is not str:
         return
 
-    module_name = app_registry.get(app_class)
+    module_name = _app_registry.get(app_class)
     if module_name is None:
         return
     try:
@@ -28,12 +29,13 @@ def get_app_class(
 
 
 def unload_app_module(
-    app_class: str, app_registry: dict[str, str] = APP_REGISTRY
+    app_class: str, _app_registry: dict[str, str] = APP_REGISTRY
 ):
+    "Remove app module from memory"
     if type(app_class) is not str:
         return False
 
-    module_name = app_registry.get(app_class)
+    module_name = _app_registry.get(app_class)
     if module_name is None:
         return False
     elif module_name in sys.modules:
