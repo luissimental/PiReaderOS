@@ -33,7 +33,9 @@ def mock_unload_app_module(mocker):
 def app_manager_unittest(mocker):
     """Patch __init__ for isolation"""
     mocker.patch.object(AppManager, "__init__", return_value=None)
-    return AppManager()
+    manager = AppManager()
+    manager.events = mocker.Mock()
+    return manager
 
 
 @pytest.fixture
@@ -46,12 +48,16 @@ def app_manager_integration(mocker):
                      return_value=None)
         mocker.patch(f"{module_name}.{class_name}.clean_up",
                      return_value=None)
-    return AppManager()
+    manager = AppManager()
+    manager.events = mocker.Mock()
+    return manager
 
 
 class TestAppManagerInitialization:
     def test_init_is_working_unittest(self, mocker):
         MockCurrentApp = mocker.patch("pireaderos.core.manager.CurrentApp")
+        MockEventMgr = mocker.patch("pireaderos.core.manager.EventManager")
+        mock_events_instance = MockEventMgr.return_value
         MockSwitchApp = mocker.patch(
             "pireaderos.core.manager.AppManager._switch_app")
 
@@ -59,6 +65,9 @@ class TestAppManagerInitialization:
 
         MockCurrentApp.assert_called_once()
         assert manager.current is MockCurrentApp.return_value
+        MockEventMgr.assert_called_once()
+        mock_events_instance.subscribe.assert_called_once_with(
+            "switch_app", MockSwitchApp)
         MockSwitchApp.assert_called_once_with("HomeApp")
 
 
@@ -82,6 +91,8 @@ class TestAppManagerSwitchingApp:
         mock_current_instance.app.clean_up.assert_called_once()
         # unload_app_module("OldAppName")
         mock_unload_app_module.assert_called_once_with("OldAppName")
+        # app_class(self.events)
+        mock_new_app_class.assert_called_once_with(app_manager_unittest.events)
         # app_set(app_class(), "NewAppName")
         mock_current_instance.app_set.assert_called_once_with(
             mock_new_app_class.return_value, "NewAppName")
@@ -90,7 +101,8 @@ class TestAppManagerSwitchingApp:
         self, app_manager_integration
     ):
         app_manager_integration.current = CurrentApp()
-        app_manager_integration.current._app = HomeApp()
+        app_manager_integration.current._app = HomeApp(
+            app_manager_integration.events)
         app_manager_integration.current._app_name = "HomeApp"
         app_manager_integration._switch_app("SettingsApp")
 
@@ -116,6 +128,8 @@ class TestAppManagerSwitchingApp:
         mock_existing_app.clean_up.assert_not_called()
         # unload_app_module("OldAppName")
         mock_unload_app_module.assert_not_called()
+        # app_class(self.events)
+        mock_new_app_class.assert_called_once_with(app_manager_unittest.events)
         # app_set(app_class(), "NewAppName")
         mock_current_instance.app_set.assert_called_once_with(
             mock_new_app_class.return_value, "NewAppName")
@@ -152,6 +166,8 @@ class TestAppManagerSwitchingApp:
         mock_existing_app.clean_up.assert_not_called()
         # unload_app_module("OldAppName")
         mock_unload_app_module.assert_not_called()
+        # app_class(self.events)
+        mock_new_app_class.assert_not_called()
         # app_set(app_class(), "OldAppName")
         mock_new_app_class.assert_not_called()
         mock_current_instance.app_set.assert_not_called()
@@ -163,7 +179,8 @@ class TestAppManagerSwitchingApp:
         self, app_manager_integration
     ):
         app_manager_integration.current = CurrentApp()
-        app_manager_integration.current._app = existing_app = HomeApp()
+        app_manager_integration.current._app = existing_app = HomeApp(
+            app_manager_integration.events)
         app_manager_integration.current._app_name = existing_app_name = "HomeApp"
         app_manager_integration._switch_app("HomeApp")
 
@@ -191,8 +208,9 @@ class TestAppManagerSwitchingApp:
         mock_existing_app.clean_up.assert_not_called()
         # unload_app_module("OldAppName")
         mock_unload_app_module.assert_not_called()
-        # app_set(app_class(), "NewAppName")
+        # app_class(self.events)
         mock_new_app_class.assert_not_called()
+        # app_set(app_class(), "NewAppName")
         mock_current_instance.app_set.assert_not_called()
 
     @pytest.mark.parametrize("app_name", ["", "InvalidApp", None, 1, object()])
@@ -200,7 +218,8 @@ class TestAppManagerSwitchingApp:
         self, app_manager_integration, app_name
     ):
         app_manager_integration.current = CurrentApp()
-        app_manager_integration.current._app = existing_app = HomeApp()
+        app_manager_integration.current._app = existing_app = HomeApp(
+            app_manager_integration.events)
         app_manager_integration.current._app_name = existing_app_name = "HomeApp"
         app_manager_integration._switch_app(app_name)
 
