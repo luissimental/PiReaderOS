@@ -17,8 +17,8 @@ class TestEventManagerInitialization:
     def test_init_is_working_unittest(self):
         events = EventManager()
 
-        assert type(events.event_to_subs) is dict
-        assert not events.event_to_subs
+        assert type(events._event_to_subs) is dict
+        assert not events._event_to_subs
 
 
 class TestEventManagerSubscribe:
@@ -31,7 +31,7 @@ class TestEventManagerSubscribe:
 
         events.subscribe("MockEvent", mock_callback)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert type(subscribers) is set
         assert len(subscribers) == 1
         assert mock_callback in subscribers
@@ -44,11 +44,11 @@ class TestEventManagerSubscribe:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback1}}
+        events._event_to_subs = {"MockEvent": {mock_callback1}}
 
         events.subscribe("MockEvent", mock_callback2)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert type(subscribers) is set
         assert len(subscribers) == 2
         assert mock_callback1 in subscribers
@@ -62,14 +62,14 @@ class TestEventManagerSubscribe:
         mock_callback2 = mock_function_with_name()
         mock_callback3 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "MockEvent1": {mock_callback1},
             "MockEvent2": {mock_callback2}
         }
 
         events.subscribe("MockEvent1", mock_callback3)
 
-        subscribers = events.event_to_subs.get("MockEvent1")
+        subscribers = events._event_to_subs.get("MockEvent1")
         assert type(subscribers) is set
         assert len(subscribers) == 2
         assert mock_callback1 in subscribers
@@ -77,7 +77,7 @@ class TestEventManagerSubscribe:
 
         events.subscribe("MockEvent2", mock_callback3)
 
-        subscribers = events.event_to_subs.get("MockEvent2")
+        subscribers = events._event_to_subs.get("MockEvent2")
         assert type(subscribers) is set
         assert len(subscribers) == 2
         assert mock_callback2 in subscribers
@@ -89,11 +89,11 @@ class TestEventManagerSubscribe:
         """Subscribe callback to event fails when callback is already subscribed"""
         mock_callback = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback}}
+        events._event_to_subs = {"MockEvent": {mock_callback}}
 
         events.subscribe("MockEvent", mock_callback)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert type(subscribers) is set
         assert len(subscribers) == 1
         assert mock_callback in subscribers
@@ -105,11 +105,11 @@ class TestEventManagerSubscribe:
         """Subscribe callback to event fails when event_name is not a string"""
         mock_callback = mock_function_with_name()
         events = EventManager()
-        original_dict = events.event_to_subs
+        original_dict = events._event_to_subs
 
         events.subscribe(event_name, mock_callback)
 
-        assert events.event_to_subs is original_dict
+        assert events._event_to_subs is original_dict
 
     @pytest.mark.parametrize("callback", [None, 1, object()])
     def test_invalid_callback_type_doesnt_subscribe_to_nonexisting_valid_event_unittest(
@@ -117,11 +117,11 @@ class TestEventManagerSubscribe:
     ):
         """Subscribe callback to nonexisting event fails when callback is not callable"""
         events = EventManager()
-        original_dict = events.event_to_subs
+        original_dict = events._event_to_subs
 
         events.subscribe("MockEvent", callback)
 
-        assert events.event_to_subs is original_dict
+        assert events._event_to_subs is original_dict
 
     @pytest.mark.parametrize("callback", [None, 1, object()])
     def test_invalid_callback_type_doesnt_subscribe_to_existing_valid_event_unittest(
@@ -131,11 +131,11 @@ class TestEventManagerSubscribe:
         mock_callback = mock_function_with_name()
         mock_events_dict = {"MockEvent": {mock_callback}}
         events = EventManager()
-        events.event_to_subs = mock_events_dict
+        events._event_to_subs = mock_events_dict
 
         events.subscribe("MockEvent", callback)
 
-        assert events.event_to_subs is mock_events_dict
+        assert events._event_to_subs is mock_events_dict
 
 
 class TestEventManagerUnsubscribe:
@@ -146,11 +146,11 @@ class TestEventManagerUnsubscribe:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback1, mock_callback2}}
+        events._event_to_subs = {"MockEvent": {mock_callback1, mock_callback2}}
 
         events.unsubscribe("MockEvent", mock_callback2)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback1 in subscribers
@@ -161,11 +161,11 @@ class TestEventManagerUnsubscribe:
         """Unsubscribe callback from event successfully when callback is the only subscriber"""
         mock_callback = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback}}
+        events._event_to_subs = {"MockEvent": {mock_callback}}
 
         events.unsubscribe("MockEvent", mock_callback)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is None
 
     def test_valid_callback_unsubscribes_from_multiple_existing_events_unittest(
@@ -176,21 +176,21 @@ class TestEventManagerUnsubscribe:
         mock_callback2 = mock_function_with_name()
         mock_callback3 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "MockEvent1": {mock_callback1, mock_callback3},
             "MockEvent2": {mock_callback2, mock_callback3}
         }
 
         events.unsubscribe("MockEvent1", mock_callback3)
 
-        subscribers = events.event_to_subs.get("MockEvent1")
+        subscribers = events._event_to_subs.get("MockEvent1")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback1 in subscribers
 
         events.unsubscribe("MockEvent2", mock_callback3)
 
-        subscribers = events.event_to_subs.get("MockEvent2")
+        subscribers = events._event_to_subs.get("MockEvent2")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback2 in subscribers
@@ -201,11 +201,11 @@ class TestEventManagerUnsubscribe:
         """Unsubscribe callback from event fails when event does not exist"""
         mock_callback = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback}}
+        events._event_to_subs = {"MockEvent": {mock_callback}}
 
         events.unsubscribe("NotExistant", mock_callback)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback in subscribers
@@ -217,11 +217,11 @@ class TestEventManagerUnsubscribe:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback1}}
+        events._event_to_subs = {"MockEvent": {mock_callback1}}
 
         events.unsubscribe("MockEvent", mock_callback2)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback1 in subscribers
@@ -233,11 +233,11 @@ class TestEventManagerUnsubscribe:
         """Unsubscribe callback from event fails when event_name is not a string"""
         mock_callback = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback}}
+        events._event_to_subs = {"MockEvent": {mock_callback}}
 
         events.unsubscribe(event_name, mock_callback)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback in subscribers
@@ -249,11 +249,11 @@ class TestEventManagerUnsubscribe:
         """Unsubscribe callback from event fails when callback is not callable"""
         mock_callback = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback}}
+        events._event_to_subs = {"MockEvent": {mock_callback}}
 
         events.unsubscribe("MockEvent", callback)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback in subscribers
@@ -268,11 +268,11 @@ class TestEventManagerUnsubscribeAll:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback1, mock_callback2}}
+        events._event_to_subs = {"MockEvent": {mock_callback1, mock_callback2}}
 
         events.unsubscribe_all(mock_callback2)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback1 in subscribers
@@ -284,11 +284,11 @@ class TestEventManagerUnsubscribeAll:
         only subscribed to one event that contains one subscriber"""
         mock_callback = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback}}
+        events._event_to_subs = {"MockEvent": {mock_callback}}
 
         events.unsubscribe_all(mock_callback)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is None
 
     def test_valid_callback_unsubscribes_from_multiple_events_unittest(
@@ -300,19 +300,19 @@ class TestEventManagerUnsubscribeAll:
         mock_callback2 = mock_function_with_name()
         mock_callback3 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "MockEvent1": {mock_callback1, mock_callback3},
             "MockEvent2": {mock_callback2, mock_callback3}
         }
 
         events.unsubscribe_all(mock_callback3)
 
-        subscribers = events.event_to_subs.get("MockEvent1")
+        subscribers = events._event_to_subs.get("MockEvent1")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback1 in subscribers
 
-        subscribers = events.event_to_subs.get("MockEvent2")
+        subscribers = events._event_to_subs.get("MockEvent2")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback2 in subscribers
@@ -325,11 +325,11 @@ class TestEventManagerUnsubscribeAll:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback1}}
+        events._event_to_subs = {"MockEvent": {mock_callback1}}
 
         events.unsubscribe_all(mock_callback2)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback1 in subscribers
@@ -342,11 +342,11 @@ class TestEventManagerUnsubscribeAll:
         callable"""
         mock_callback = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {"MockEvent": {mock_callback}}
+        events._event_to_subs = {"MockEvent": {mock_callback}}
 
         events.unsubscribe_all(callback)
 
-        subscribers = events.event_to_subs.get("MockEvent")
+        subscribers = events._event_to_subs.get("MockEvent")
         assert subscribers is not None
         assert len(subscribers) == 1
         assert mock_callback in subscribers
@@ -360,7 +360,7 @@ class TestEventManagerEmitEvent:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "MockEvent1": {mock_callback1, mock_callback2},
             "MockEvent2": {mock_callback2}
         }
@@ -377,7 +377,7 @@ class TestEventManagerEmitEvent:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "MockEvent1": {mock_callback1, mock_callback2},
             "MockEvent2": {mock_callback2}
         }
@@ -397,7 +397,7 @@ class TestEventManagerEmitEvent:
         mock_callback1.side_effect = TypeError
         mock_callback2.side_effect = TypeError
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "MockEvent1": {mock_callback1, mock_callback2},
             "MockEvent2": {mock_callback2}
         }
@@ -414,7 +414,7 @@ class TestEventManagerEmitEvent:
         def callback1(a1, a2, kw1=None): must_not_be_called.append(1)
         def callback2(a1, a2, kw1=None): must_not_be_called.append(2)
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "Event1": {callback1, callback2},
             "Event2": {callback2}
         }
@@ -430,7 +430,7 @@ class TestEventManagerEmitEvent:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "MockEvent1": {mock_callback1, mock_callback2},
             "MockEvent2": {mock_callback2}
         }
@@ -448,7 +448,7 @@ class TestEventManagerEmitEvent:
         mock_callback1 = mock_function_with_name()
         mock_callback2 = mock_function_with_name()
         events = EventManager()
-        events.event_to_subs = {
+        events._event_to_subs = {
             "MockEvent1": {mock_callback1, mock_callback2},
             "MockEvent2": {mock_callback2}
         }

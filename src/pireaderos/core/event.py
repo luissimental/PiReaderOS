@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class EventManager:
     def __init__(self):
-        self.event_to_subs: dict[str, set[Callable]] = {}
+        self._event_to_subs: dict[str, set[Callable]] = {}
         logger.info("Initialized 'EventManager'")
 
     def subscribe(self, event_name: str, callback: Callable):
@@ -28,9 +28,9 @@ class EventManager:
             return
 
         # Subscribe to event
-        subscribers = self.event_to_subs.get(event_name)
+        subscribers = self._event_to_subs.get(event_name)
         if subscribers is None:
-            self.event_to_subs[event_name] = subscribers = set()
+            self._event_to_subs[event_name] = subscribers = set()
         subscribers.add(callback)
 
         logger.info(
@@ -59,7 +59,7 @@ class EventManager:
 
         # Only used for self.unsubscribe_all
         if _use_dict is None:
-            event_to_subs_dict = self.event_to_subs
+            event_to_subs_dict = self._event_to_subs
         else:
             event_to_subs_dict = _use_dict
 
@@ -98,12 +98,12 @@ class EventManager:
             "from all events..."
         )
         unsubscribed = False
-        event_to_subs_copy = self.event_to_subs.copy()
-        for event in self.event_to_subs:
+        event_to_subs_copy = self._event_to_subs.copy()
+        for event in self._event_to_subs:
             success = self.unsubscribe(event, callback, event_to_subs_copy)
             if success:
                 unsubscribed = True
-        self.event_to_subs = event_to_subs_copy
+        self._event_to_subs = event_to_subs_copy
 
         if unsubscribed:
             logger.info(
@@ -127,7 +127,7 @@ class EventManager:
             return
 
         # Do nothing if event does not exist
-        subscribers = self.event_to_subs.get(event_name)
+        subscribers = self._event_to_subs.get(event_name)
         if subscribers is None:
             logger.error(
                 "Emitting event failed. "
