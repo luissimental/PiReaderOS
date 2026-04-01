@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# macOS files
+.DS_Store
+
 # C extensions
 *.so
 
@@ -35,6 +38,9 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
+# logs directory
+logs/
 
 # Unit test / coverage reports
 htmlcov/

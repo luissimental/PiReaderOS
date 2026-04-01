@@ -4,7 +4,9 @@ version = "0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0.3",
+]
 
 [project.scripts]
 pireaderos = "pireaderos.main:main"
@@ -17,4 +19,11 @@ build-backend = "uv_build"
 dev = [
     "pytest>=9.0.2",
     "pytest-mock>=3.15.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unittest: isolated logic tests",
+    "integration: runtime tests"
 ]
