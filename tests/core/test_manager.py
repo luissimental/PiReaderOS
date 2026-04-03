@@ -233,3 +233,25 @@ class TestAppManagerSwitchingApp:
 
         assert app_manager_integration.current.app is existing_app
         assert app_manager_integration.current.app_name is existing_app_name
+
+
+class TestAppManagerRun:
+    def test_run_terminates_at_keyboard_interrupt_unittest(
+        self, mocker, app_manager_unittest, mock_current_app_with
+    ):
+        """Terminate run loop when the user hits Ctrl-c"""
+        mocker.patch("time.sleep", side_effect=KeyboardInterrupt)
+        mock_current_instance = mock_current_app_with(mocker.Mock(), "MockApp")
+        app_manager_unittest.current = mock_current_instance
+
+        app_manager_unittest.run()
+
+    def test_run_terminates_when_no_app_is_loaded_unittest(
+        self, app_manager_unittest, mock_current_app_with
+    ):
+        """Terminate when there is no app loaded"""
+        mock_current_instance = mock_current_app_with(None, None)
+        app_manager_unittest.current = mock_current_instance
+
+        with pytest.raises(AssertionError):
+            app_manager_unittest.run()

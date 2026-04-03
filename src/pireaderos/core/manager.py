@@ -1,4 +1,5 @@
 import logging
+import time
 
 from pireaderos.apps.registry import get_app_class, unload_app_module
 from pireaderos.core.current import CurrentApp
@@ -44,3 +45,21 @@ class AppManager:
         app_instance = app_class(self.events)
         self.current.app_set(app_instance, app_name)
         logger.info(f"Switched app to '{app_name}'")
+
+    def run(self):
+        if self.current.app is None and self.current.app_name is None:
+            logger.critical(
+                "Running 'AppManager' run loop failed. "
+                "Must have an app loaded"
+            )
+            raise AssertionError("AppManager must have an app loaded to run")
+
+        logger.info("Running 'AppManager' run loop...")
+        try:
+            while True:
+                time.sleep(0.02)
+        except KeyboardInterrupt:
+            logger.info(
+                "Terminated 'AppManager' run loop. "
+                "Detected keyboard interrupt"
+            )
