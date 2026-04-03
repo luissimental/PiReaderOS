@@ -18,6 +18,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
+    "pytest-cov>=7.1.0",
     "pytest-mock>=3.15.1",
 ]
 
@@ -27,3 +28,18 @@ markers = [
     "unittest: isolated logic tests",
     "integration: runtime tests"
 ]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*"]
+branch = true
+
+[tool.coverage.report]
+exclude_also = [
+    'if __name__ == .__main__.:',
+    '\A(?s:.*# pragma: exclude file.*)\Z',
+]
+skip_covered = true
+skip_empty = true
+show_missing = true
+fail_under = 80

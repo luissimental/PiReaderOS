@@ -1,0 +1,52 @@
+name: CI Pipeline
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test_with_coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.13
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-cov jq
+          pip install -e .
+          pip install -r requirements.txt
+
+      - name: Run tests with coverage
+        run: |
+          pytest --cov --cov-report=json
+
+      - name: Extract coverage percentage
+        if: success() || failure()
+        run: |
+          echo "COVERAGE=$(jq '.totals.percent_covered_display | tonumber' coverage.json)%" >> $GITHUB_ENV
+
+      - name: Update Gist with coverage
+        if: success() || failure()
+        uses: schneegans/dynamic-badges-action@v1.8.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 37ad658c596eb18f0a434f5e082a0fde
+          filename: coverage.json
+          label: Coverage
+          message: ${{ env.COVERAGE }}
+          valColorRange: ${{ env.COVERAGE }}
+          maxColorRange: 100
+          minColorRange: 0

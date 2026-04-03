@@ -1,3 +1,4 @@
+# pragma: exclude file
 import logging
 
 from pireaderos.core.logging import setup_logging
