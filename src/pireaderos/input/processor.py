@@ -1,6 +1,6 @@
 import time
 
-from pireaderos.input.constants import TouchEvent, TouchEventType, TouchPoint
+from pireaderos.input import constants
 
 
 class TouchProcessor:
@@ -13,12 +13,13 @@ class TouchProcessor:
     """
 
     def __init__(self):
-        self._last_touch: dict[int, TouchPoint | None] = {}
+        self._last_touch: dict[int, constants.TouchPoint | None] = {}
         self._is_touching: dict[int, bool] = {}
 
     def process_raw_touches(
-        self, touches: list[tuple[int, int, int]]
-    ) -> list[TouchEvent]:
+        self,
+        touches: list[tuple[int, int, int]],
+    ) -> list[constants.TouchEvent]:
         """Process raw touch sensor data and generate touch events.
 
         Args:
@@ -30,7 +31,7 @@ class TouchProcessor:
           changes.
         """
         now = time.time()
-        events = []
+        events: list[constants.TouchEvent] = []
 
         # Detect fingers that have been lifted from the screen
         events.extend(self._process_lifted_fingers(touches))
@@ -38,14 +39,15 @@ class TouchProcessor:
         # Process touches currently on the screen
         for touch in touches:
             pid, x, y = touch
-            point = TouchPoint(pid, x, y, now)
+            point = constants.TouchPoint(pid, x, y, now)
             events.extend(self._process_touch_point(pid, point))
 
         return events
 
     def _process_lifted_fingers(
-        self, current_touches: list[tuple[int, int, int]]
-    ) -> list[TouchEvent]:
+        self,
+        current_touches: list[tuple[int, int, int]],
+    ) -> list[constants.TouchEvent]:
         """Detect and generate events for fingers that have been lifted.
 
         Compare the current set of touch IDs with previously tracked IDs
@@ -58,7 +60,7 @@ class TouchProcessor:
         Returns:
           A list of UP touch events for lifted fingers.
         """
-        events = []
+        events: list[constants.TouchEvent] = []
 
         # Only process if we have more tracked touches than current touches
         if len(self._last_touch) <= len(current_touches):
@@ -73,13 +75,17 @@ class TouchProcessor:
 
             # Only generate UP event if the finger was actually touching
             if point and was_touching:
-                events.append(TouchEvent(TouchEventType.UP, point))
+                events.append(
+                    constants.TouchEvent(constants.TouchEventType.UP, point)
+                )
 
         return events
 
     def _process_touch_point(
-        self, touch_id: int, point: TouchPoint
-    ) -> list[TouchEvent]:
+        self,
+        touch_id: int,
+        point: constants.TouchPoint,
+    ) -> list[constants.TouchEvent]:
         """Process a single touch point and generate appropriate events.
 
         Handle state transitions: initialize new touches, generate DOWN
@@ -93,7 +99,7 @@ class TouchProcessor:
         Returns:
           A list of touch events (DOWN or CONTACT) for this touch point.
         """
-        events = []
+        events: list[constants.TouchEvent] = []
 
         # Initialize state for new touch IDs
         if touch_id not in self._is_touching:
@@ -103,11 +109,15 @@ class TouchProcessor:
         # Check if finger was already touching (generating CONTACT event)
         if self._is_touching[touch_id]:
             self._last_touch[touch_id] = point
-            events.append(TouchEvent(TouchEventType.CONTACT, point))
+            events.append(
+                constants.TouchEvent(constants.TouchEventType.CONTACT, point)
+            )
         # Finger is starting to touch (generating DOWN event)
         else:
             self._is_touching[touch_id] = True
             self._last_touch[touch_id] = point
-            events.append(TouchEvent(TouchEventType.DOWN, point))
+            events.append(
+                constants.TouchEvent(constants.TouchEventType.DOWN, point)
+            )
 
         return events
