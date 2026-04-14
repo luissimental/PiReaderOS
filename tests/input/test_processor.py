@@ -1,4 +1,5 @@
-from pireaderos.input.processor import TouchProcessor, TouchPoint, TouchEvent
+from pireaderos.input.constants import TouchEvent, TouchPoint
+from pireaderos.input.processor import TouchProcessor
 
 
 class TestTouchProcessorInitialization:

@@ -1,50 +1,15 @@
 import time
-from dataclasses import dataclass
-from enum import Enum
 
-
-class TouchEventType(Enum):
-    """Types of touch events that can be detected."""
-    DOWN = "down"        # Finger started touching screen
-    UP = "up"            # Finger lifted from screen
-    CONTACT = "contact"  # Finger remained on screen
-
-
-@dataclass
-class TouchPoint:
-    """Represents a single touch point on the screen.
-
-    Attributes:
-        id: Unique identifier for the touch contact
-        x: X-coordinate of the touch
-        y: Y-coordinate of the touch
-        timestamp: Time when the touch was recorded (seconds since epoch)
-    """
-    id: int
-    x: int
-    y: int
-    timestamp: float
-
-
-@dataclass
-class TouchEvent:
-    """A detected touch event with its associated touch point data.
-
-    Attributes:
-        type: The type of touch event (DOWN, UP, or CONTACT)
-        point: The touch point data associated with this event
-    """
-    type: TouchEventType
-    point: TouchPoint
+from pireaderos.input.constants import TouchEvent, TouchEventType, TouchPoint
 
 
 class TouchProcessor:
-    """Translates raw touch sensor data into higher-level touch events.
+    """Translate raw touch sensor data into higher-level touch events.
 
-    This processor tracks touch points across frames and detects when fingers
-    start touching (DOWN), continue touching (CONTACT), or lift off (UP) the screen.
-    It maintains state about which touch IDs are currently active and their
-    last known positions.
+    Track touch points across frames and detects when fingers start touching
+    (DOWN), continue touching (CONTACT), or lift off (UP) thescreen. It
+    maintains state about which touch IDs are currently active and their last
+    known positions.
     """
 
     def __init__(self):
@@ -57,10 +22,12 @@ class TouchProcessor:
         """Process raw touch sensor data and generate touch events.
 
         Args:
-            touches: List of (touch_id, x, y) tuples from the touch controller
+          touches:
+            A list of (touch_id, x, y) tuples from the touch controller.
 
         Returns:
-            List of TouchEvent objects representing detected touch state changes.
+          A list of TouchEvent objects representing detected touch state
+          changes.
         """
         now = time.time()
         events = []
@@ -81,14 +48,15 @@ class TouchProcessor:
     ) -> list[TouchEvent]:
         """Detect and generate events for fingers that have been lifted.
 
-        Compares the current set of touch IDs with previously tracked IDs
+        Compare the current set of touch IDs with previously tracked IDs
         to find any that are no longer present.
 
         Args:
-            current_touches: Currently active touches from the controller
+          current_touches:
+            The active touches from the controller.
 
         Returns:
-            List of UP events for lifted fingers
+          A list of UP touch events for lifted fingers.
         """
         events = []
 
@@ -114,16 +82,16 @@ class TouchProcessor:
     ) -> list[TouchEvent]:
         """Process a single touch point and generate appropriate events.
 
-        Handles state transitions: initializes new touches, generates DOWN
+        Handle state transitions: initialize new touches, generate DOWN
         events when a finger first touches, and CONTACT events for ongoing
         movement.
 
         Args:
-            touch_id: Unique identifier for this touch
-            point: The current touch point data
+          touch_id: The unique identifier for this touch.
+          point: The current touch point data.
 
         Returns:
-            List of touch events (DOWN or CONTACT) for this touch point
+          A list of touch events (DOWN or CONTACT) for this touch point.
         """
         events = []
 
