@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 import pytest_mock
 
-from pireaderos.hardware import touch
+from pireaderos.hardware import models, touch
 
 
 @pytest.fixture
@@ -15,7 +15,7 @@ def mock_touch_driver(mocker: pytest_mock.MockerFixture) -> touch.TouchDriver:
     driver = touch.TouchDriver(mocker.Mock(), mocker.Mock())
     driver._hw = mock_hm
     driver._closed = False
-    driver._int_callback = mocker.Mock()
+    driver._interrupt_callback = mocker.Mock()
 
     driver._reset_pin = mocker.Mock()
     driver._int_pin = mocker.Mock()
@@ -69,7 +69,7 @@ class TestTouchDriverOnTouchInterrupt:
         mock_touch_driver._on_touch_interrupt()
 
         mock_read_touches.assert_called_once()
-        mock_touch_driver._int_callback.assert_called_once_with(
+        mock_touch_driver._interrupt_callback.assert_called_once_with(
             mock_read_touches.return_value
         )
 
@@ -131,7 +131,7 @@ class TestTouchDriverReadTouches:
         mock_touch_driver._hw.i2c_read_block_data.assert_called_once()
         assert isinstance(result, list)
         assert len(result) == 1
-        assert len(result[0]) == 3
+        assert isinstance(result[0], models.TouchPoint)
 
     def test_read_two_touch_points_unittest(
         self, mock_touch_driver: pytest_mock.MockType
@@ -159,8 +159,8 @@ class TestTouchDriverReadTouches:
         mock_touch_driver._hw.i2c_read_block_data.assert_called_once()
         assert isinstance(result, list)
         assert len(result) == 2
-        assert len(result[0]) == 3
-        assert len(result[1]) == 3
+        assert isinstance(result[0], models.TouchPoint)
+        assert isinstance(result[1], models.TouchPoint)
 
     def test_read_touches_returns_empty_list_if_no_touches_unittest(
         self, mock_touch_driver: pytest_mock.MockType

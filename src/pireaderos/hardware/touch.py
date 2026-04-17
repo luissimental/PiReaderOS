@@ -4,6 +4,7 @@ from collections.abc import Callable
 from typing import Any
 
 from pireaderos.hal import manager
+from pireaderos.hardware import models
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +48,6 @@ class _TOUCH_LAYOUT:  # noqa: N801
     Y_HIGH = 0x0F
 
 
-Touch = tuple[int, int, int]
-
-
 def _touch_index(index: int, offset: int) -> int:
     """Get the register address for a given touch point index and offset."""
     return index * _TOUCH_LAYOUT.STRIDE + offset
@@ -61,7 +59,7 @@ class TouchDriver:
     def __init__(
         self,
         hw: manager.HardwareManager,
-        touch_int_callback: Callable[[list[Touch]], Any],
+        interrupt_callback: Callable[[list[models.TouchPoint]], Any],
     ) -> None:
         """Initialize the touch controller hardware.
 
@@ -71,15 +69,15 @@ class TouchDriver:
 
         Args:
           hw:
-            Hardware Abstraction Layer
-          touch_int_callback:
-            Callback function to handle touch interrupts.
-            This function must accept a list of (int, int, int) tuples
+            The Hardware Abstraction Layer.
+          interrupt_callback:
+            The callback function to handle touch interrupts.
+            This function must accept a list of models.TouchPoint objects.
 
         """
         self._hw = hw
         self._closed = False  # Flag for detecting clean up
-        self._int_callback = touch_int_callback
+        self._interrupt_callback = interrupt_callback
 
         self._reset_pin = hw.request_pin(RST_PIN, mode="output")
         self._int_pin = hw.request_pin(
@@ -95,7 +93,7 @@ class TouchDriver:
     def _on_touch_interrupt(self) -> None:
         """Call when a touch event is detected."""
         touches = self.read_touches()
-        self._int_callback(touches)
+        self._interrupt_callback(touches)
 
     def hardware_reset(self) -> None:
         """Perform a hardware reset on the FT6336U touch controller.
@@ -146,7 +144,7 @@ class TouchDriver:
         status = self._hw.i2c_read_byte_data(I2C_ADDR, _TD_STATUS.ADDR)
         return status & _TD_STATUS.TOUCH_POINTS
 
-    def read_touches(self) -> list[Touch]:
+    def read_touches(self) -> list[models.TouchPoint]:
         """Return each touch point coordinate.
 
         Returns:
@@ -155,6 +153,7 @@ class TouchDriver:
         """
         self._ensure_open()
 
+        now = time.time()
         touch_points = self._get_touch_count()
         if touch_points == 0:
             return []
@@ -164,7 +163,7 @@ class TouchDriver:
             I2C_ADDR, _TOUCH_LAYOUT.BASE_ADDR, length
         )
 
-        touches: list[Touch] = []
+        touches: list[models.TouchPoint] = []
 
         for i in range(touch_points):
             xh = data[_touch_index(i, _TOUCH_LAYOUT.XH)]
@@ -176,7 +175,8 @@ class TouchDriver:
             x = ((xh & _TOUCH_LAYOUT.X_HIGH) << 8) | xl
             y = ((yh & _TOUCH_LAYOUT.Y_HIGH) << 8) | yl
 
-            touches.append((touch_id, x, y))
+            point = models.TouchPoint(touch_id, x, y, now)
+            touches.append(point)
 
         return touches
 

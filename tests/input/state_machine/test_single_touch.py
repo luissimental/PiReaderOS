@@ -1,6 +1,7 @@
 import pytest
 import statemachine
 
+from pireaderos.hardware import models as hw_models
 from pireaderos.input import constants, enums, models
 from pireaderos.input.state_machine import single_touch
 
@@ -24,8 +25,8 @@ class TestSingleTouchStateMachineInitialization:
         assert isinstance(sm.drag, statemachine.event.BoundEvent)
         assert isinstance(sm.release, statemachine.event.BoundEvent)
 
-        assert isinstance(sm._start_point, models.TouchPoint | None)
-        assert isinstance(sm._last_point, models.TouchPoint | None)
+        assert isinstance(sm._start_point, hw_models.TouchPoint | None)
+        assert isinstance(sm._last_point, hw_models.TouchPoint | None)
 
 
 class TestSingleTouchStateMachineTouchDownEvent:
@@ -33,7 +34,7 @@ class TestSingleTouchStateMachineTouchDownEvent:
 
     def test_touch_down_transitions_idle_to_down_unittest(self) -> None:
         """Calling event touch_down transitions from idle to down."""
-        point = models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(0, 0, 0, 0)
         sm = single_touch.SingleTouchStateMachine()
 
         sm.touch_down(point)
@@ -55,7 +56,7 @@ class TestSingleTouchStateMachineTouchDownEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling touch_down doesn't transition from idle to down."""
-        point = models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(0, 0, 0, 0)
         sm = single_touch.SingleTouchStateMachine()
         sm.current_state = state
 
@@ -80,7 +81,7 @@ class TestSingleTouchStateMachineTouchContactEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling touch_contact transitions from idle to contact."""
-        point = models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(0, 0, 0, 0)
         sm = single_touch.SingleTouchStateMachine()
         sm.current_state = state
 
@@ -102,7 +103,7 @@ class TestSingleTouchStateMachineTouchContactEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling touch_contact doesn't transition to contact from wrong states."""  # noqa: E501
-        point = models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(0, 0, 0, 0)
         sm = single_touch.SingleTouchStateMachine()
         sm.current_state = state
 
@@ -127,8 +128,8 @@ class TestSingleTouchStateMachineHoldEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling hold transitions to holding."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
-        point = models.TouchPoint(
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(
             0,
             0,
             constants.GestureThreshold.HOLD_DISTANCE - 1,
@@ -160,8 +161,8 @@ class TestSingleTouchStateMachineHoldEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling hold doesn't transition to holding from wrong states."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
-        point = models.TouchPoint(0, 0, 0, 0)
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(0, 0, 0, 0)
 
         sm = single_touch.SingleTouchStateMachine()
         sm._start_point = start_point
@@ -184,17 +185,17 @@ class TestSingleTouchStateMachineHoldEvent:
     @pytest.mark.parametrize(
         "point",
         [
-            models.TouchPoint(0, 0, 0, 0),  # fails time
-            models.TouchPoint(  # fails distance
+            hw_models.TouchPoint(0, 0, 0, 0),  # fails time
+            hw_models.TouchPoint(  # fails distance
                 0, 0, constants.GestureThreshold.HOLD_DISTANCE, 100000
             ),
         ],
     )
     def test_hold_transition_fails_condition_unittest(
-        self, state: statemachine.State, point: models.TouchPoint
+        self, state: statemachine.State, point: hw_models.TouchPoint
     ) -> None:
         """Calling hold fails condition with point."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
 
         sm = single_touch.SingleTouchStateMachine()
         sm.current_state = state
@@ -222,8 +223,8 @@ class TestSingleTouchStateMachineDragEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling drag transitions to dragging."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
-        point = models.TouchPoint(
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(
             0, 0, constants.GestureThreshold.DRAG_DISTANCE, 0
         )
 
@@ -253,8 +254,8 @@ class TestSingleTouchStateMachineDragEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling drag doesn't transition to dragging from wrong states."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
-        point = models.TouchPoint(0, 0, 0, 0)
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(0, 0, 0, 0)
 
         sm = single_touch.SingleTouchStateMachine()
         sm._start_point = start_point
@@ -269,8 +270,8 @@ class TestSingleTouchStateMachineDragEvent:
 
     def test_drag_transition_fails_condition_unittest(self) -> None:
         """Calling drag fails condition with point."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
-        point = models.TouchPoint(
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(
             0, 0, constants.GestureThreshold.DRAG_DISTANCE - 1, 0
         )
 
@@ -302,7 +303,7 @@ class TestSingleTouchStateMachineReleaseEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling release transitions to idle."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
 
         sm = single_touch.SingleTouchStateMachine()
         sm._start_point = start_point
@@ -316,7 +317,7 @@ class TestSingleTouchStateMachineReleaseEvent:
 
     def test_release_does_not_transition_to_idle_unittest(self) -> None:
         """Calling release doesn't transition to from idle to idle."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
 
         sm = single_touch.SingleTouchStateMachine()
         sm._start_point = start_point
@@ -339,8 +340,8 @@ class TestSingleTouchStateMachineReleaseEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling release returns tap gesture."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
-        point = models.TouchPoint(
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(
             0, 0, constants.GestureThreshold.TAP_DISTANCE - 1, 0
         )
 
@@ -363,25 +364,25 @@ class TestSingleTouchStateMachineReleaseEvent:
         "point, direction",
         [
             (
-                models.TouchPoint(
+                hw_models.TouchPoint(
                     0, -constants.GestureThreshold.SWIPE_DISTANCE, 0, 0
                 ),
                 enums.SwipeDirection.LEFT,
             ),
             (
-                models.TouchPoint(
+                hw_models.TouchPoint(
                     0, constants.GestureThreshold.SWIPE_DISTANCE, 0, 0
                 ),
                 enums.SwipeDirection.RIGHT,
             ),
             (
-                models.TouchPoint(
+                hw_models.TouchPoint(
                     0, 0, -constants.GestureThreshold.SWIPE_DISTANCE, 0
                 ),
                 enums.SwipeDirection.UP,
             ),
             (
-                models.TouchPoint(
+                hw_models.TouchPoint(
                     0, 0, constants.GestureThreshold.SWIPE_DISTANCE, 0
                 ),
                 enums.SwipeDirection.DOWN,
@@ -390,11 +391,11 @@ class TestSingleTouchStateMachineReleaseEvent:
     )
     def test_release_returns_swipe_gesture_unittest(
         self,
-        point: models.TouchPoint,
+        point: hw_models.TouchPoint,
         direction: enums.SwipeDirection,
     ) -> None:
         """Calling release returns swipe gesture with direction."""
-        start_point = models.TouchPoint(0, 0, 0, 0)
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
 
         sm = single_touch.SingleTouchStateMachine()
         sm._start_point = start_point
@@ -423,8 +424,8 @@ class TestSingleTouchStateMachineReleaseEvent:
         self, state: statemachine.State
     ) -> None:
         """Calling release returns release gesture from holding and dragging."""  # noqa: E501
-        start_point = models.TouchPoint(0, 0, 0, 0)
-        point = models.TouchPoint(0, 100000, 0, 100000)
+        start_point = hw_models.TouchPoint(0, 0, 0, 0)
+        point = hw_models.TouchPoint(0, 100000, 0, 100000)
 
         sm = single_touch.SingleTouchStateMachine()
         sm._start_point = start_point
@@ -455,8 +456,8 @@ class TestSingleTouchStateMachineGenerateGesture:
 
     def test_generate_returns_none_from_contact_state_unittest(self) -> None:
         """Return None from contact."""
-        down_point = models.TouchPoint(0, 0, 0, 0)
-        contact_point = models.TouchPoint(
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+        contact_point = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME / 2
         )
 
@@ -483,17 +484,17 @@ class TestSingleTouchStateMachineGenerateGesture:
 
     def test_generate_returns_hold_gesture_unittest(self) -> None:
         """Return hold gesture."""
-        down_point = models.TouchPoint(0, 0, 0, 0)
-        contact_point1 = models.TouchPoint(
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+        contact_point1 = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME / 3
         )
-        contact_point2 = models.TouchPoint(
+        contact_point2 = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME / 2
         )
-        hold_point1 = models.TouchPoint(
+        hold_point1 = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME
         )
-        hold_point2 = models.TouchPoint(
+        hold_point2 = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME + 1
         )
 
@@ -529,20 +530,20 @@ class TestSingleTouchStateMachineGenerateGesture:
 
     def test_generate_returns_drag_gesture_unittest(self) -> None:
         """Return drag gesture."""
-        down_point = models.TouchPoint(0, 0, 0, 0)
-        contact_point = models.TouchPoint(
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+        contact_point = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME / 2
         )
-        hold_point = models.TouchPoint(
+        hold_point = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME
         )
-        drag_point1 = models.TouchPoint(
+        drag_point1 = hw_models.TouchPoint(
             0,
             0,
             constants.GestureThreshold.DRAG_DISTANCE,
             constants.GestureThreshold.HOLD_TIME + 1,
         )
-        drag_point2 = models.TouchPoint(
+        drag_point2 = hw_models.TouchPoint(
             0,
             0,
             constants.GestureThreshold.DRAG_DISTANCE + 100,
@@ -578,7 +579,7 @@ class TestSingleTouchStateMachineGenerateGesture:
         self,
     ) -> None:
         """Return tap gesture from down."""
-        down_point = models.TouchPoint(0, 0, 0, 0)
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
 
         gesture: models.GestureEvent | None = None
         sm = single_touch.SingleTouchStateMachine()
@@ -598,8 +599,8 @@ class TestSingleTouchStateMachineGenerateGesture:
         self,
     ) -> None:
         """Return tap gesture from contact."""
-        down_point = models.TouchPoint(0, 0, 0, 0)
-        contact_point = models.TouchPoint(
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+        contact_point = hw_models.TouchPoint(
             0,
             0,
             constants.GestureThreshold.TAP_DISTANCE - 1,
@@ -623,8 +624,8 @@ class TestSingleTouchStateMachineGenerateGesture:
 
     def test_generate_returns_swipe_gesture_unittest(self) -> None:
         """Return swipe gesture."""
-        down_point = models.TouchPoint(0, 0, 0, 0)
-        contact_point = models.TouchPoint(
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+        contact_point = hw_models.TouchPoint(
             0,
             0,
             constants.GestureThreshold.SWIPE_DISTANCE,
@@ -650,11 +651,11 @@ class TestSingleTouchStateMachineGenerateGesture:
         self,
     ) -> None:
         """Return release gesture from holding."""
-        down_point = models.TouchPoint(0, 0, 0, 0)
-        contact_point = models.TouchPoint(
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+        contact_point = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME / 2
         )
-        hold_point = models.TouchPoint(
+        hold_point = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME
         )
 
@@ -678,14 +679,14 @@ class TestSingleTouchStateMachineGenerateGesture:
         self,
     ) -> None:
         """Return release gesture from dragging."""
-        down_point = models.TouchPoint(0, 0, 0, 0)
-        contact_point = models.TouchPoint(
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+        contact_point = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME / 2
         )
-        hold_point = models.TouchPoint(
+        hold_point = hw_models.TouchPoint(
             0, 0, 0, constants.GestureThreshold.HOLD_TIME
         )
-        drag_point = models.TouchPoint(
+        drag_point = hw_models.TouchPoint(
             0,
             0,
             constants.GestureThreshold.DRAG_DISTANCE,
