@@ -1,20 +1,26 @@
 import logging
-from threading import Lock
-from typing import Callable, Sequence
+import threading
+from collections.abc import Callable, Sequence
+from typing import Self
 
+import gpiozero
 import smbus2
-from gpiozero import DigitalInputDevice, DigitalOutputDevice
-
 
 logger = logging.getLogger(__name__)
+
 
 I2C_BUS = 3
 
 
 class GPIOPin:  # pragma: no cover
-    """GPIO pin wrapper"""
+    """GPIO pin wrapper."""
 
-    def __init__(self, pin_number: int, device):
+    def __init__(
+        self,
+        pin_number: int,
+        device: gpiozero.DigitalInputDevice | gpiozero.DigitalOutputDevice,
+    ) -> None:
+        """Initialize GPIOPin."""
         self._pin_number = pin_number
         self._device = device
 
@@ -28,19 +34,21 @@ class GPIOPin:  # pragma: no cover
         """Returns `True` if the device is closed."""
         return self._device.closed
 
-    def on(self):
-        """Turns the device on."""
-        self._device.on()
+    def on(self) -> None:
+        """Turn the device on."""
+        if isinstance(self._device, gpiozero.DigitalOutputDevice):
+            self._device.on()
 
-    def off(self):
-        """Turns the device off."""
-        self._device.off()
+    def off(self) -> None:
+        """Turn the device off."""
+        if isinstance(self._device, gpiozero.DigitalOutputDevice):
+            self._device.off()
 
-    def set_when_activated(self, callback: Callable):
-        """Runs callback function when device is activated."""
+    def set_when_activated(self, callback: Callable) -> None:
+        """Run callback function when device is activated."""
         self._device.when_activated = callback
 
-    def _close(self):
+    def _close(self) -> None:
         """Shuts down the device and releases all associated resources.
 
         Use `HardwareManager.release_pin` for closing.
@@ -54,48 +62,58 @@ class HardwareManager:
     Best used as a context manager for graceful clean up during exceptions.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize HardwareManager."""
         self._i2c = smbus2.SMBus(I2C_BUS)
         self._active_pins: dict[int, GPIOPin] = {}
 
-        self._pin_lock = Lock()
-        self._i2c_lock = Lock()
+        self._pin_lock = threading.Lock()
+        self._i2c_lock = threading.Lock()
 
         self._closed = False  # Flag for detecting clean up
 
         logger.info("Initialized 'HardwareManager'")
 
-    def request_pin(self, pin: int, mode: str, **kwargs):
-        """Requests a pin from the device.
+    def request_pin(
+        self, pin: int, mode: str, *, pull_up: bool = False
+    ) -> GPIOPin:
+        """Request a pin from the device.
+
+        Pin must be closed using `HardwareManager.release_pin`.
 
         Args:
-            pin (int): GPIO pin number
-            mode (str): Must be one of 'input' or 'output'
-            kwargs: Standard kwargs for gpiozero
-                `DigitalInputDevice` or `DigitalOutputDevice`
+          pin:
+            The GPIO pin number
+          mode:
+            Must be one of 'input' or 'output'.
+          pull_up:
+            The pin will be pulled up if True.
 
-        Note: pin must be closed using `HardwareManager.release_pin`.
         """
         self._ensure_open()
 
         with self._pin_lock:
             if pin in self._active_pins:
-                logger.error(f"GPIO pin {pin} already allocated")
-                raise RuntimeError(f"GPIO pin {pin} already allocated")
+                logger.error("GPIO pin %s already allocated", pin)
+                msg = f"GPIO pin {pin} already allocated"
+                raise RuntimeError(msg)
 
             if mode == "input":
-                device = GPIOPin(pin, DigitalInputDevice(pin, **kwargs))
+                device = GPIOPin(
+                    pin, gpiozero.DigitalInputDevice(pin, pull_up=pull_up)
+                )
             elif mode == "output":
-                device = GPIOPin(pin, DigitalOutputDevice(pin, **kwargs))
+                device = GPIOPin(pin, gpiozero.DigitalOutputDevice(pin))
             else:
-                logger.error(f"Unknown mode: '{mode}'")
-                raise ValueError(f"Unknown mode: {mode}")
+                logger.error("Unknown mode: '%s'", mode)
+                msg_0 = f"Unknown mode: {mode}"
+                raise ValueError(msg_0)
 
             self._active_pins[pin] = device
             return device
 
-    def release_pin(self, pin: GPIOPin):
-        """Shuts down the device and releases all associated resources."""
+    def release_pin(self, pin: GPIOPin) -> None:
+        """Shut down the device and release all associated resources."""
         self._ensure_open()
 
         device = None
@@ -104,34 +122,44 @@ class HardwareManager:
             device = self._active_pins.pop(pin_number, None)
 
         if not device:
-            logger.error(f"Pin {pin_number} already released")
-            raise RuntimeError(f"Pin {pin_number} already released")
+            logger.error("Pin %s already released", pin_number)
+            msg = f"Pin {pin_number} already released"
+            raise RuntimeError(msg)
         device._close()
 
-    def i2c_read_byte_data(self, i2c_addr: int, reg: int):
-        """Reads a single byte from a given register.
+    def i2c_read_byte_data(self, i2c_addr: int, reg: int) -> int:
+        """Read a single byte from a given register.
 
         Args:
-            i2c_addr (int): i2c address
-            reg (int): Start register
+          i2c_addr:
+            The i2c address.
+          reg:
+            The start register.
 
         Returns:
-            int: Read byte value
+            The read byte value.
+
         """
         self._ensure_open()
         with self._i2c_lock:
             return self._i2c.read_byte_data(i2c_addr, reg)
 
-    def i2c_read_block_data(self, i2c_addr: int, reg: int, length=1):
-        """Reads a block of byte data from a given register.
+    def i2c_read_block_data(
+        self, i2c_addr: int, reg: int, length: int = 1
+    ) -> list[int]:
+        """Read a block of byte data from a given register.
 
         Args:
-            i2c_addr (int): i2c address
-            reg (int): Start register
-            length (int): Desired block length
+          i2c_addr:
+            The i2c address.
+          reg:
+            The start register.
+          length:
+            The desired block length.
 
         Returns:
-            list: List of bytes
+            The list of bytes.
+
         """
         self._ensure_open()
 
@@ -139,16 +167,23 @@ class HardwareManager:
             with self._i2c_lock:
                 return self._i2c.read_i2c_block_data(i2c_addr, reg, length)
         else:
-            logger.error(f"Length {length} must be at least 1")
-            raise ValueError(f"Length {length} must be at least 1")
+            logger.error("Length %s must be at least 1", length)
+            msg = f"Length {length} must be at least 1"
+            raise ValueError(msg)
 
-    def i2c_write(self, i2c_addr: int, reg: int, data: int | Sequence[int]):
-        """Writes a byte or a block of byte data to a given register.
+    def i2c_write(
+        self, i2c_addr: int, reg: int, data: int | Sequence[int]
+    ) -> None:
+        """Write a byte or a block of byte data to a given register.
 
         Args:
-            i2c_addr (int): i2c address
-            reg (int): Register to write to
-            data (int | Sequence[int]): Byte value or list of bytes to transmit
+          i2c_addr:
+            The i2c address.
+          reg:
+            The register to write to.
+          data:
+            The byte value or list of bytes to transmit.
+
         """
         self._ensure_open()
 
@@ -158,8 +193,8 @@ class HardwareManager:
             else:
                 self._i2c.write_block_data(i2c_addr, reg, data)
 
-    def clean_up(self):
-        """Releases all GPIO pins and i2c bus."""
+    def clean_up(self) -> None:
+        """Release all GPIO pins and the i2c bus."""
         if self._closed:
             return
 
@@ -175,13 +210,16 @@ class HardwareManager:
 
         self._closed = True
 
-    def _ensure_open(self):
+    def _ensure_open(self) -> None:
         if self._closed:
             logger.error("'HardwareManager' is closed")
-            raise RuntimeError("HardwareManager is closed")
+            msg = "HardwareManager is closed"
+            raise RuntimeError(msg)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
+        """Enter as a context manager."""
         return self
 
-    def __exit__(self, exc_type, exc, tb):
+    def __exit__(self, exc_type, exc, tb) -> None:  # noqa: ANN001
+        """Exit context manager."""
         self.clean_up()

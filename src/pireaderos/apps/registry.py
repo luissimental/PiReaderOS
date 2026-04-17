@@ -2,8 +2,7 @@ import importlib
 import logging
 import sys
 
-from pireaderos.apps.base import BaseApp
-
+from pireaderos.apps import base
 
 logger = logging.getLogger(__name__)
 
@@ -14,51 +13,54 @@ APP_REGISTRY: dict[str, str] = {
 
 
 def get_app_class(
-        app_class: str, _app_registry: dict[str, str] = APP_REGISTRY
-) -> type[BaseApp] | None:
-    """Dynamically import and return app class"""
-    # Check that argument type is valid
+    app_class: str, _app_registry: dict[str, str] = APP_REGISTRY
+) -> type[base.BaseApp] | None:
+    """Import and return the app class."""
+    # Check that the argument type is valid
     if type(app_class) is not str:
         logger.error(
-            "Getting app class failed. "
-            f"App class '{app_class}' is not a string"
+            "Getting app class failed. App class '%s' is not a string",
+            app_class,
         )
-        return
+        return None
 
     # Retrieve module name in registry
     module_name = _app_registry.get(app_class)
     if module_name is None:
         logger.error(
-            "Getting app class failed. "
-            f"App class '{app_class}' not in registry"
+            "Getting app class failed. App class '%s' not in registry",
+            app_class,
         )
-        return
+        return None
 
     # Import module and return app class
     try:
         module = importlib.import_module(module_name)
         return getattr(module, app_class)
     except ModuleNotFoundError:
-        logger.error(
-            f"Getting app class '{app_class}' failed. "
-            f"Module '{module_name}' not found"
+        logger.exception(
+            "Getting app class '%s' failed. Module '%s' not found",
+            app_class,
+            module_name,
         )
     except AttributeError:
-        logger.error(
-            f"Getting app class '{app_class}' failed. "
-            f"App class not found in module '{module_name}'"
+        logger.exception(
+            "Getting app class '%s' failed. "
+            "App class not found in module '%s'",
+            app_class,
+            module_name,
         )
 
 
 def unload_app_module(
     app_class: str, _app_registry: dict[str, str] = APP_REGISTRY
-):
-    "Remove app module from memory"
+) -> bool:
+    """Remove the app_class's module from memory."""
     # Check that argument type is valid
     if type(app_class) is not str:
         logger.error(
-            "Unloading app module failed. "
-            f"App class '{app_class}' is not a string"
+            "Unloading app module failed. App class '%s' is not a string",
+            app_class,
         )
         return False
 
@@ -66,8 +68,8 @@ def unload_app_module(
     module_name = _app_registry.get(app_class)
     if module_name is None:
         logger.error(
-            "Unloading app module failed. "
-            f"App class '{app_class}' not in registry"
+            "Unloading app module failed. App class '%s' not in registry",
+            app_class,
         )
         return False
 
@@ -77,7 +79,9 @@ def unload_app_module(
         return True
 
     logger.error(
-        f"Unloading app module with app_class '{app_class}' failed. "
-        f"Module '{module_name}' is not loaded"
+        "Unloading app module with app_class '%s' failed. "
+        "Module '%s' is not loaded",
+        app_class,
+        module_name,
     )
     return False

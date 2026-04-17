@@ -1,5 +1,5 @@
-from pireaderos.apps.base import BaseApp
+from pireaderos.apps import base
 
 
-class SettingsApp(BaseApp):
-    pass
+class SettingsApp(base.BaseApp):
+    """The settings app."""

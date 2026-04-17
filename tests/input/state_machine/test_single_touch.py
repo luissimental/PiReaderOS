@@ -708,4 +708,3 @@ class TestSingleTouchStateMachineGenerateGesture:
         assert gesture.type is enums.GestureType.RELEASE
         assert gesture.start_point is down_point
         assert gesture.end_point is drag_point
-        assert gesture.end_point is drag_point

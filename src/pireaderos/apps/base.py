@@ -1,9 +1,12 @@
-from pireaderos.core.event import EventManager
+from pireaderos.core import event
 
 
 class BaseApp:
-    def __init__(self, events: EventManager):
+    """The base class for all apps."""
+
+    def __init__(self, events: event.EventManager) -> None:
+        """Initialize app."""
         self.events = events
 
-    def clean_up(self):
-        """Called when switching app out for clean up"""
+    def clean_up(self) -> None:
+        """Clean up when switching out of the app."""

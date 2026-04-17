@@ -1,5 +1,5 @@
-from pireaderos.apps.base import BaseApp
+from pireaderos.apps import base
 
 
-class HomeApp(BaseApp):
-    pass
+class HomeApp(base.BaseApp):
+    """The app for the home screen."""

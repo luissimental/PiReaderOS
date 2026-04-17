@@ -1,9 +1,9 @@
 import logging
 import time
-from typing import Callable, Any
+from collections.abc import Callable
+from typing import Any
 
-from pireaderos.hal.manager import HardwareManager
-
+from pireaderos.hal import manager
 
 logger = logging.getLogger(__name__)
 
@@ -13,14 +13,16 @@ INT_PIN = 19
 RST_PIN = 26
 
 
-class _TD_STATUS:  # Touch data status
+# Touch data status
+class _TD_STATUS:  # noqa: N801
     ADDR = 0x02
 
     # Masks
     TOUCH_POINTS = 0x0F
 
 
-class _ID_G_PMODE:  # Power consumption mode
+# Power consumption mode
+class _ID_G_PMODE:  # noqa: N801
     ADDR = 0xA5
 
     # Write options
@@ -29,7 +31,7 @@ class _ID_G_PMODE:  # Power consumption mode
     HIBERNATE = 0x03
 
 
-class _TOUCH_LAYOUT:
+class _TOUCH_LAYOUT:  # noqa: N801
     BASE_ADDR = 0x03
     STRIDE = 6  # bytes per touch point
 
@@ -48,8 +50,8 @@ class _TOUCH_LAYOUT:
 Touch = tuple[int, int, int]
 
 
-def _touch_index(index: int, offset: int):
-    """Gets the register address for a given touch point index and offset."""
+def _touch_index(index: int, offset: int) -> int:
+    """Get the register address for a given touch point index and offset."""
     return index * _TOUCH_LAYOUT.STRIDE + offset
 
 
@@ -58,18 +60,22 @@ class TouchDriver:
 
     def __init__(
         self,
-        hw: HardwareManager,
-        touch_int_callback: Callable[[list[Touch]], Any]
-    ):
-        """Initializes the touch controller hardware.
+        hw: manager.HardwareManager,
+        touch_int_callback: Callable[[list[Touch]], Any],
+    ) -> None:
+        """Initialize the touch controller hardware.
+
+        Sets up GPIO pins for reset and interrupt, assigns the interrupt
+        callback, and performs a hardware reset to ensure the FT6336U is in a
+        known state.
 
         Args:
-            hw (HardwareManager): Hardware Abstraction Layer
-            touch_int_callback (Callable): Callback function to handle touch interrupts.
-                This function must accept a list of (int, int, int) tuples
+          hw:
+            Hardware Abstraction Layer
+          touch_int_callback:
+            Callback function to handle touch interrupts.
+            This function must accept a list of (int, int, int) tuples
 
-        Sets up GPIO pins for reset and interrupt, assigns the interrupt callback,
-        and performs a hardware reset to ensure the FT6336U is in a known state.
         """
         self._hw = hw
         self._closed = False  # Flag for detecting clean up
@@ -79,20 +85,20 @@ class TouchDriver:
         self._int_pin = hw.request_pin(
             INT_PIN,
             mode="input",
-            pull_up=True  # active-low
+            pull_up=True,  # active-low
         )
         self._int_pin.set_when_activated(self._on_touch_interrupt)
         self.hardware_reset()
 
         logger.info("Initialized TouchDriver")
 
-    def _on_touch_interrupt(self):
-        """Calls when a touch event is detected."""
+    def _on_touch_interrupt(self) -> None:
+        """Call when a touch event is detected."""
         touches = self.read_touches()
         self._int_callback(touches)
 
-    def hardware_reset(self):
-        """Performs a hardware reset on the FT6336U touch controller.
+    def hardware_reset(self) -> None:
+        """Perform a hardware reset on the FT6336U touch controller.
 
         Sends a reset signal by setting the reset pin low for 10ms then high
         for 50ms, following the FT6336U datasheet timing requirements.
@@ -104,18 +110,20 @@ class TouchDriver:
         self._reset_pin.on()
         time.sleep(0.05)  # 50 ms
 
-    def set_power_mode(self, mode: str):
-        """Changes power mode of the touch controller.
-
-        Args:
-            mode (str): The mode to use.
-                Must be one of 'active', 'monitor', or 'hibernate'.
+    def set_power_mode(self, mode: str) -> None:
+        """Change the power mode of the touch controller.
 
         Monitor mode scans at a reduced speed and power. When a touch
         is detected, the controller automatically enters active mode.
 
         Hibernate mode powers down the touch controller, so `hardware_reset`
         must be called to wake the device up and start receiving touch input.
+
+        Args:
+          mode:
+            The mode to use. Must be one of 'active', 'monitor', or
+            'hibernate'.
+
         """
         self._ensure_open()
 
@@ -125,20 +133,26 @@ class TouchDriver:
             self._hw.i2c_write(I2C_ADDR, _ID_G_PMODE.ADDR, _ID_G_PMODE.MONITOR)
         elif mode == "hibernate":
             self._hw.i2c_write(
-                I2C_ADDR, _ID_G_PMODE.ADDR, _ID_G_PMODE.HIBERNATE)
+                I2C_ADDR, _ID_G_PMODE.ADDR, _ID_G_PMODE.HIBERNATE
+            )
         else:
-            logger.error(f"Unknown mode: '{mode}'")
-            raise ValueError(f"Unknown mode: {mode}")
+            logger.error("Unknown mode: '%s'", mode)
+            msg = f"Unknown mode: {mode}"
+            raise ValueError(msg)
         time.sleep(0.05)  # 50 ms
 
-    def _get_touch_count(self):
-        """Returns the number of touch points currently using."""
+    def _get_touch_count(self) -> int:
+        """Return the number of touch points currently using."""
         status = self._hw.i2c_read_byte_data(I2C_ADDR, _TD_STATUS.ADDR)
         return status & _TD_STATUS.TOUCH_POINTS
 
     def read_touches(self) -> list[Touch]:
-        """Returns each touch point coordinate as a list
-        of (touch_id, x, y) tuples."""
+        """Return each touch point coordinate.
+
+        Returns:
+          A list of tuples containing (touch_id, x, y).
+
+        """
         self._ensure_open()
 
         touch_points = self._get_touch_count()
@@ -147,7 +161,8 @@ class TouchDriver:
 
         length = touch_points * _TOUCH_LAYOUT.STRIDE
         data = self._hw.i2c_read_block_data(
-            I2C_ADDR, _TOUCH_LAYOUT.BASE_ADDR, length)
+            I2C_ADDR, _TOUCH_LAYOUT.BASE_ADDR, length
+        )
 
         touches: list[Touch] = []
 
@@ -165,8 +180,8 @@ class TouchDriver:
 
         return touches
 
-    def clean_up(self):
-        """Cleans up the touch controller hardware resources."""
+    def clean_up(self) -> None:
+        """Clean up the touch controller's hardware resources."""
         if self._closed:
             return
 
@@ -175,7 +190,8 @@ class TouchDriver:
 
         self._closed = True
 
-    def _ensure_open(self):
+    def _ensure_open(self) -> None:
         if self._closed:
             logger.error("'TouchDriver' is closed")
-            raise RuntimeError("TouchDriver is closed")
+            msg = "TouchDriver is closed"
+            raise RuntimeError(msg)
