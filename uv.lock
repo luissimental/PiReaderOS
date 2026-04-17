@@ -128,6 +128,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "gpiozero" },
+    { name = "python-statemachine" },
     { name = "pyyaml" },
     { name = "smbus2" },
 ]
@@ -143,6 +144,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "gpiozero", specifier = ">=2.0.1" },
+    { name = "python-statemachine", specifier = ">=3.0.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "smbus2", specifier = ">=0.6.0" },
 ]
@@ -225,6 +227,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ac/82/4c9ecabab13363e72d880f2fb504c5f750433b2b6f16e99f4ec21ada284c/pytest_timeout-2.4.0.tar.gz", hash = "sha256:7e68e90b01f9eff71332b25001f85c75495fc4e3a836701876183c4bcfd0540a", size = 17973, upload-time = "2025-05-05T19:44:34.99Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fa/b6/3127540ecdf1464a00e5a01ee60a1b09175f6913f0644ac748494d9c4b21/pytest_timeout-2.4.0-py3-none-any.whl", hash = "sha256:c42667e5cdadb151aeb5b26d114aff6bdf5a907f176a007a30b940d3d865b5c2", size = 14382, upload-time = "2025-05-05T19:44:33.502Z" },
+]
+
+[[package]]
+name = "python-statemachine"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f4/a6/d0626b1efb56d9502fe8686fa5dbf23d444b5985adac974be2aa8780c956/python_statemachine-3.0.0.tar.gz", hash = "sha256:91523f9ead73c1d6fecc975d5c6e0bfe363fbf537c5f0bf309bcd0f94f9441b2", size = 852800, upload-time = "2026-02-24T18:06:04.908Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a2/ba/9863be42c209d66623e188223484c1502f25a2412f258f00505c613f6e5d/python_statemachine-3.0.0-py3-none-any.whl", hash = "sha256:f967ee864cfd26375c91f49560e790357613482811efcec8b2020c1f874a5eaf", size = 103801, upload-time = "2026-02-24T18:06:03.31Z" },
 ]
 
 [[package]]

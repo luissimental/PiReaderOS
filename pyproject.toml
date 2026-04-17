@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "gpiozero>=2.0.1",
+    "python-statemachine>=3.0.0",
     "pyyaml>=6.0.3",
     "smbus2>=0.6.0",
 ]
@@ -27,10 +28,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = [
-    "unittest: isolated logic tests",
-    "integration: runtime tests"
-]
+markers = ["unittest: isolated logic tests", "integration: runtime tests"]
 timeout = 3
 
 [tool.coverage.run]

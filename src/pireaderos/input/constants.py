@@ -1,43 +1,52 @@
-from dataclasses import dataclass
-from enum import Enum
-
-
-class TouchEventType(Enum):
-    """Types of touch events that can be detected."""
-    DOWN = "down"  # Finger started touching screen
-    UP = "up"  # Finger lifted from screen
-    CONTACT = "contact"  # Finger remained on screen
-
-
-@dataclass
-class TouchPoint:
-    """A single touch point on the screen.
+# pragma: exclude file
+class GestureThreshold:
+    """Threshold values for gesture recognition.
 
     Attributes:
-      id:
-        The unique identifier for the touch contact.
-      x:
-        The x-coordinate of the touch.
-      y:
-        The y-coordinate of the touch.
-      timestamp:
-        The time when the touch was recorded (seconds since epoch).
+      TAP_TIME:
+        in seconds.
+      TAP_DISTANCE:
+        in pixels.
+      BETWEEN_TAP_TIME:
+        in seconds.
+      BETWEEN_TAP_DISTANCE:
+        in pixels.
+      HOLD_TIME:
+        in seconds.
+      HOLD_DISTANCE:
+        in pixels.
+      DRAG_DISTANCE:
+        in pixels.
+      SWIPE_TIME:
+        in seconds.
+      SWIPE_DISTANCE:
+        in pixels.
+      ZOOM_DISTANCE:
+        in pixels.
+      ROTATE_ANGLE:
+        in degrees.
+
     """
-    id: int
-    x: int
-    y: int
-    timestamp: float
 
+    # Tap gestures
+    TAP_TIME = 0.1  # seconds
+    TAP_DISTANCE = 10  # pixels
 
-@dataclass
-class TouchEvent:
-    """A detected touch event with its associated touch point data.
+    # Tap counts (double tap, triple tap, etc.)
+    BETWEEN_TAP_TIME = 0.35  # seconds
+    BETWEEN_TAP_DISTANCE = 20  # pixels
 
-    Attributes:
-      type:
-        The type of touch event (DOWN, UP, or CONTACT).
-      point:
-        The touch point data associated with this event.
-    """
-    type: TouchEventType
-    point: TouchPoint
+    # Hold gestures
+    HOLD_TIME = 0.25  # seconds
+    HOLD_DISTANCE = 10  # pixels
+
+    # Drag gestures
+    DRAG_DISTANCE = 10  # pixels
+
+    # Swipe gestures
+    SWIPE_TIME = 0.2  # seconds
+    SWIPE_DISTANCE = 50  # pixels
+
+    # Zoom and rotate gestures
+    ZOOM_DISTANCE = 10  # pixels
+    ROTATE_ANGLE = 5  # degrees
