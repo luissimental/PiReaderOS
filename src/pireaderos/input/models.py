@@ -7,7 +7,7 @@ from pireaderos.input import enums
 
 @dataclasses.dataclass
 class GestureEvent:
-    """The generated gesture.
+    """The gesture model.
 
     Attributes:
       type:

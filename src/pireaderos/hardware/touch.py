@@ -61,7 +61,7 @@ class TouchDriver:
         hw: manager.HardwareManager,
         interrupt_callback: Callable[[list[models.TouchPoint]], Any],
     ) -> None:
-        """Initialize the touch controller hardware.
+        """Initialize the FT6336U touch controller hardware.
 
         Sets up GPIO pins for reset and interrupt, assigns the interrupt
         callback, and performs a hardware reset to ensure the FT6336U is in a

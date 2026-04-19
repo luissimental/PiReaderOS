@@ -20,7 +20,6 @@ class GPIOPin:  # pragma: no cover
         pin_number: int,
         device: gpiozero.DigitalInputDevice | gpiozero.DigitalOutputDevice,
     ) -> None:
-        """Initialize GPIOPin."""
         self._pin_number = pin_number
         self._device = device
 
@@ -63,7 +62,6 @@ class HardwareManager:
     """
 
     def __init__(self) -> None:
-        """Initialize HardwareManager."""
         self._i2c = smbus2.SMBus(I2C_BUS)
         self._active_pins: dict[int, GPIOPin] = {}
 

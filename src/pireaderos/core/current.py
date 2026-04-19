@@ -5,7 +5,6 @@ class CurrentApp:
     """Stores the app instance and its name."""
 
     def __init__(self) -> None:
-        """Initialize CurrentApp."""
         self._app: base.BaseApp | None = None
         self._app_name: str | None = None
 

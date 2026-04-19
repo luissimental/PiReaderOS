@@ -26,7 +26,7 @@ class GestureType(enum.StrEnum):
 
 
 class SwipeDirection(enum.StrEnum):
-    """The direction of a detected swipe gesture."""
+    """The direction of a swipe gesture."""
 
     LEFT = enum.auto()
     RIGHT = enum.auto()

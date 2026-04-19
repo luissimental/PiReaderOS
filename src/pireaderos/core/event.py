@@ -9,7 +9,6 @@ class EventManager:
     """The manager for the event to callback system."""
 
     def __init__(self) -> None:
-        """Initialize EventManager."""
         self._event_to_subs: dict[str, set[Callable]] = {}
         logger.info("Initialized 'EventManager'")
 

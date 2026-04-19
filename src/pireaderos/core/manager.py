@@ -11,7 +11,6 @@ class AppManager:
     """Manages the core functionality of PiReaderOS."""
 
     def __init__(self) -> None:
-        """Initialize AppManager."""
         logger.info("Initializing 'AppManager'...")
         self.current = current.CurrentApp()
         self.events = event.EventManager()

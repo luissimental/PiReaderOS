@@ -34,7 +34,6 @@ class MultiTouchStateMachine(statemachine.StateChart):
     end = idle.from_(two_fingers_down, transforming, cond="_should_end")
 
     def __init__(self) -> None:
-        """Initialize the object."""
         super().__init__()
         self._start_distance: float = 0.0
         self._start_angle: float = 0.0

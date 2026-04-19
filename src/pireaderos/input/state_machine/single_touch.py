@@ -36,7 +36,6 @@ class SingleTouchStateMachine(statemachine.StateChart):
     release = idle.from_(down, contact, holding, dragging)
 
     def __init__(self) -> None:
-        """Initialize object."""
         super().__init__()
         self._start_point: hw_models.TouchPoint | None = None
         self._last_point: hw_models.TouchPoint | None = None
