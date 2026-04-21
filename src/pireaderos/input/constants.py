@@ -1,4 +1,7 @@
 # pragma: exclude file
+from pireaderos.input import enums
+
+
 class GestureThreshold:
     """Threshold values for gesture recognition.
 
@@ -8,9 +11,9 @@ class GestureThreshold:
       TAP_DISTANCE:
         in pixels.
       BETWEEN_TAP_TIME:
-        in seconds.
+        The time threshold to register subsequent taps in seconds.
       BETWEEN_TAP_DISTANCE:
-        in pixels.
+        The distance threshold to register subsequent taps in pixels.
       HOLD_TIME:
         in seconds.
       HOLD_DISTANCE:
@@ -50,3 +53,46 @@ class GestureThreshold:
     # Zoom and rotate gestures
     ZOOM_DISTANCE = 10  # pixels
     ROTATE_ANGLE = 5  # degrees
+
+
+# A gesture with a higher priority gets emitted
+GESTURE_PRIORITY = {
+    enums.GestureType.MULTI_TOUCH_RELEASE: 100,
+    enums.GestureType.ZOOM_AND_ROTATE: 90,
+    enums.GestureType.MULTI_TOUCH_HOLD: 80,
+    enums.GestureType.RELEASE: 70,
+    enums.GestureType.DELAYED_TAP: 60,
+    enums.GestureType.TAP: 50,
+    enums.GestureType.SWIPE: 40,
+    enums.GestureType.DRAG: 30,
+    enums.GestureType.HOLD: 20,
+}
+
+GESTURE_IS_RELEASE = {
+    # Release gestures:
+    enums.GestureType.MULTI_TOUCH_RELEASE: True,
+    enums.GestureType.RELEASE: True,
+    # Non-release gestures:
+    enums.GestureType.ZOOM_AND_ROTATE: False,
+    enums.GestureType.MULTI_TOUCH_HOLD: False,
+    enums.GestureType.DELAYED_TAP: False,
+    enums.GestureType.TAP: False,
+    enums.GestureType.SWIPE: False,
+    enums.GestureType.DRAG: False,
+    enums.GestureType.HOLD: False,
+}
+
+# A gesture has a lifecyle if it triggers a release gesture after it ends
+GESTURE_HAS_LIFECYCLE = {
+    # Triggers release:
+    enums.GestureType.ZOOM_AND_ROTATE: True,
+    enums.GestureType.MULTI_TOUCH_HOLD: True,
+    enums.GestureType.DRAG: True,
+    enums.GestureType.HOLD: True,
+    # Does not trigger release:
+    enums.GestureType.MULTI_TOUCH_RELEASE: False,
+    enums.GestureType.RELEASE: False,
+    enums.GestureType.DELAYED_TAP: False,
+    enums.GestureType.TAP: False,
+    enums.GestureType.SWIPE: False,
+}
