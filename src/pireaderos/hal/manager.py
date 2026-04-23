@@ -5,6 +5,7 @@ from typing import Self
 
 import gpiozero
 import smbus2
+import spidev
 
 logger = logging.getLogger(__name__)
 
@@ -62,15 +63,57 @@ class HardwareManager:
     """
 
     def __init__(self) -> None:
+        self._spi = spidev.SpiDev()
         self._i2c = smbus2.SMBus(I2C_BUS)
         self._active_pins: dict[int, GPIOPin] = {}
 
-        self._pin_lock = threading.Lock()
+        self._spi_lock = threading.Lock()
         self._i2c_lock = threading.Lock()
+        self._pin_lock = threading.Lock()
 
         self._closed = False  # Flag for detecting clean up
 
         logger.info("Initialized 'HardwareManager'")
+
+    def enable_spi(self) -> None:
+        """Enable communication on the SPI bus."""
+        self._ensure_open()
+
+        with self._spi_lock:
+            self._spi.open(0, 0)  # bus=0, device=0
+            self._spi.max_speed_hz = 4000000
+            self._spi.mode = 0b00
+
+    def close_spi(self) -> None:
+        """Close communication on the SPI bus."""
+        self._ensure_open()
+
+        with self._spi_lock:
+            self._spi.close()
+
+    def spi_writebytes(self, data: Sequence[int]) -> None:
+        """Write a block of byte data to the SPI interface."""
+        self._ensure_open()
+
+        if len(data) == 0:
+            return
+
+        with self._spi_lock:
+            self._spi.writebytes(data)
+
+    def spi_writebytes2(self, data: Sequence[int]) -> None:
+        """Write an arbitrary large block of byte data to the SPI interface.
+
+        If sequence size exceeds buffer size, data will be split into smaller
+        chunks and sent in multiple operations.
+        """
+        self._ensure_open()
+
+        if len(data) == 0:
+            return
+
+        with self._spi_lock:
+            self._spi.writebytes2(data)
 
     def request_pin(
         self, pin: int, mode: str, *, pull_up: bool = False
@@ -196,15 +239,18 @@ class HardwareManager:
         if self._closed:
             return
 
+        with self._spi_lock:
+            self._spi.close()
+
+        with self._i2c_lock:
+            self._i2c.close()
+
         with self._pin_lock:
             devices = list(self._active_pins.values())
             self._active_pins.clear()
 
         for device in devices:
             device._close()
-
-        with self._i2c_lock:
-            self._i2c.close()
 
         self._closed = True
 

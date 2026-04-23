@@ -9,6 +9,7 @@ dependencies = [
     "python-statemachine>=3.0.0",
     "pyyaml>=6.0.3",
     "smbus2>=0.6.0",
+    "spidev>=3.8",
 ]
 
 [project.scripts]

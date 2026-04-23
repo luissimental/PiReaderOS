@@ -131,6 +131,7 @@ dependencies = [
     { name = "python-statemachine" },
     { name = "pyyaml" },
     { name = "smbus2" },
+    { name = "spidev" },
 ]
 
 [package.dev-dependencies]
@@ -147,6 +148,7 @@ requires-dist = [
     { name = "python-statemachine", specifier = ">=3.0.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "smbus2", specifier = ">=0.6.0" },
+    { name = "spidev", specifier = ">=3.8" },
 ]
 
 [package.metadata.requires-dev]
@@ -291,3 +293,9 @@ sdist = { url = "https://files.pythonhosted.org/packages/4e/36/afafd43770caae69f
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a5/cf/2e1d6805da6f9c9b3a4358076ff2e072d828ba7fed124edc1b729e210c55/smbus2-0.6.0-py2.py3-none-any.whl", hash = "sha256:03d83d2a9a4afc5ddca0698ccabf101cb3de52bc5aefd7b76778ffb27ff654e0", size = 11849, upload-time = "2025-12-20T09:02:51.219Z" },
 ]
+
+[[package]]
+name = "spidev"
+version = "3.8"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/67/87/039b6eeea781598015b538691bc174cc0bf77df9d4d2d3b8bf9245c0de8c/spidev-3.8.tar.gz", hash = "sha256:2bc02fb8c6312d519ebf1f4331067427c0921d3f77b8bcaf05189a2e8b8382c0", size = 13893, upload-time = "2025-09-15T18:56:20.672Z" }

@@ -7,6 +7,12 @@ from pireaderos.hal import manager
 
 
 @pytest.fixture
+def mock_spidev(mocker: pytest_mock.MockerFixture) -> pytest_mock.MockType:
+    """Mocker SpiDev."""
+    return mocker.patch("pireaderos.hal.manager.spidev.SpiDev")
+
+
+@pytest.fixture
 def mock_smbus(mocker: pytest_mock.MockerFixture) -> pytest_mock.MockType:
     """Mock SMBus."""
     return mocker.patch("pireaderos.hal.manager.smbus2.SMBus")
@@ -30,6 +36,7 @@ def mock_digital_output(
 
 @pytest.fixture
 def mock_hardware_manager(
+    mock_spidev: pytest_mock.MockType,  # noqa: ARG001
     mock_smbus: pytest_mock.MockType,  # noqa: ARG001
     mock_digital_input: pytest_mock.MockType,  # noqa: ARG001
     mock_digital_output: pytest_mock.MockType,  # noqa: ARG001
@@ -42,10 +49,13 @@ class TestHardwareManagerInitialization:
     """Test HardwareManager initialization."""
 
     def test_init_is_working_unittest(
-        self, mock_smbus: pytest_mock.MockType
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_smbus: pytest_mock.MockType,
     ) -> None:
         """Set up exists."""
         manager.HardwareManager()
+        mock_spidev.assert_called_once()
         mock_smbus.assert_called_once_with(3)
 
 
@@ -69,6 +79,84 @@ class TestHardwareManagerAsContextManager:
         spy_enter.assert_called_once()
         spy_exit.assert_called_once()
         spy_clean_up.assert_called_once()
+
+
+class TestHardwareManagerEnableSpi:
+    """Test HardwareManager enable_spi."""
+
+    def test_enable_spi_opens_spi_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Calls open on the SpiDev instance."""
+        mock_hardware_manager.enable_spi()
+
+        mock_spidev.return_value.open.assert_called_once_with(0, 0)
+
+
+class TestHardwareManagerCloseSpi:
+    """Test HardwareManager close_spi."""
+
+    def test_close_spi_closes_spi_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Calls close on the SpiDev instance."""
+        mock_hardware_manager.close_spi()
+
+        mock_spidev.return_value.close.assert_called_once()
+
+
+class TestHardwareManagerSpiWriteBtytes:
+    """Test HardwareManager spi_writebytes."""
+
+    def test_writebytes_writes_bytes_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Writes block of byte data."""
+        mock_hardware_manager.spi_writebytes([0x01])
+
+        mock_spidev.return_value.writebytes.assert_called_once_with([0x01])
+
+    def test_writebytes_does_not_call_on_empty_list_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Does not call writebytes if data is empty."""
+        mock_hardware_manager.spi_writebytes([])
+
+        mock_spidev.return_value.writebytes.assert_not_called()
+
+
+class TestHardwareManagerSpiWriteBytes2:
+    """Test HardwareManager spi_writebytes2."""
+
+    def test_writebytes2_writes_bytes_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Writes an arbitrary large block of byte data."""
+        data = [0x01] * 100
+
+        mock_hardware_manager.spi_writebytes2(data)
+
+        mock_spidev.return_value.writebytes2.assert_called_once_with(data)
+
+    def test_writebytes2_does_not_call_on_empty_list_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Does not call writebytes2 if data is empty."""
+        mock_hardware_manager.spi_writebytes2([])
+
+        mock_spidev.return_value.writebytes2.assert_not_called()
 
 
 class TestHardwareManagerRequestPin:
@@ -332,6 +420,7 @@ class TestHardwareManagerCleanUp:
     def test_clean_up_is_working_unittest(
         self,
         mocker: pytest_mock.MockerFixture,
+        mock_spidev: pytest_mock.MockType,
         mock_smbus: pytest_mock.MockType,
         mock_hardware_manager: manager.HardwareManager,
     ) -> None:
@@ -351,12 +440,66 @@ class TestHardwareManagerCleanUp:
         mock_gpio_1._close.assert_called_once()
         mock_gpio_2._close.assert_called_once()
         mock_gpio_3._close.assert_called_once()
+        mock_spidev.return_value.close.assert_called_once()
         mock_smbus.return_value.close.assert_called_once()
         assert not mock_hardware_manager._active_pins
 
 
 class TestHardwareManagerAfterCleanUp:
     """Test HardwareManager after clean_up."""
+
+    def test_enable_spi_fails_after_clean_up_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Raise error when enabling spi."""
+        mock_hardware_manager.clean_up()
+
+        with pytest.raises(RuntimeError):
+            mock_hardware_manager.enable_spi()
+
+        mock_spidev.return_value.open.assert_not_called()
+
+    def test_close_spi_fails_after_clean_up_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Raise error when closing spi."""
+        mock_hardware_manager.clean_up()
+        mock_spidev.reset_mock()
+
+        with pytest.raises(RuntimeError):
+            mock_hardware_manager.close_spi()
+
+        mock_spidev.return_value.close.assert_not_called()
+
+    def test_spi_writebytes_fails_after_clean_up_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Raise error when calling spi_writebytes."""
+        mock_hardware_manager.clean_up()
+
+        with pytest.raises(RuntimeError):
+            mock_hardware_manager.spi_writebytes([])
+
+        mock_spidev.return_value.writebytes.assert_not_called()
+
+    def test_spi_writebytes2_fails_after_clean_up_unittest(
+        self,
+        mock_spidev: pytest_mock.MockType,
+        mock_hardware_manager: manager.HardwareManager,
+    ) -> None:
+        """Raise error when calling spi_writebytes2."""
+        mock_hardware_manager.clean_up()
+
+        with pytest.raises(RuntimeError):
+            mock_hardware_manager.spi_writebytes2([])
+
+        mock_spidev.return_value.writebytes2.assert_not_called()
 
     def test_request_pin_fails_after_clean_up_unittest(
         self,
