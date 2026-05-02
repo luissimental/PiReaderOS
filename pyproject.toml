@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "gpiozero>=2.0.1",
+    "pillow>=12.2.0",
     "python-statemachine>=3.0.0",
     "pyyaml>=6.0.3",
     "smbus2>=0.6.0",

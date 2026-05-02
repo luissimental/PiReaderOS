@@ -34,6 +34,11 @@ class GPIOPin:  # pragma: no cover
         """Returns `True` if the device is closed."""
         return self._device.closed
 
+    @property
+    def is_active(self) -> bool:
+        """Return True if the device is currently active, False otherwise."""
+        return self._device.is_active
+
     def on(self) -> None:
         """Turn the device on."""
         if isinstance(self._device, gpiozero.DigitalOutputDevice):
@@ -57,7 +62,7 @@ class GPIOPin:  # pragma: no cover
 
 
 class HardwareManager:
-    """Central location to manage Raspberry PI GPIO pin hardware.
+    """Central location to manage Raspberry Pi GPIO pin hardware.
 
     Best used as a context manager for graceful clean up during exceptions.
     """
