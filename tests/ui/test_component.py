@@ -12,7 +12,7 @@ class TestComponentInitialization:
         top_level = component.Component(parent=None, width=1, height=1)
 
         assert isinstance(top_level.parent, component.Component | None)
-        assert isinstance(top_level.children, set)
+        assert isinstance(top_level.children, list)
         assert isinstance(top_level._x, int)
         assert isinstance(top_level._y, int)
         assert isinstance(top_level._width, int)

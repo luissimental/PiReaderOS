@@ -92,11 +92,11 @@ class Component:
             raise ValueError(msg)
 
         self.parent: Component | None = None
-        self.children: set[Component] = set()
+        self.children: list[Component] = []
 
         if parent is not None:
             self.parent = parent
-            parent.children.add(self)
+            parent.children.append(self)
 
         self._x = x  # stores x relative to the parent
         self._y = y  # stores y relative to the parent
@@ -224,7 +224,7 @@ class Component:
         if component.parent is not None:
             component.parent.remove_child(component)
 
-        self.children.add(component)
+        self.children.append(component)
         component.parent = self
 
     def remove_child(self, component: Component) -> None:
@@ -234,7 +234,7 @@ class Component:
         The child component's descendants are preserved.
         """
         if component.parent is self:
-            self.children.discard(component)
+            self.children.remove(component)
             component.parent = None
 
     def snap_to(self, position: POSITIONS) -> None:
@@ -291,8 +291,8 @@ def remove_component(component: Component) -> None:
     if component.parent is None:
         return
 
-    component.parent.children.discard(component)
-    component.parent.children.update(component.children)
+    component.parent.children.remove(component)
+    component.parent.children.extend(component.children)
 
     for children in component.children:
         children.parent = component.parent
@@ -304,7 +304,7 @@ def remove_component(component: Component) -> None:
 def remove_branch(component: Component) -> None:
     """Remove a component and all of its descendants."""
     if component.parent is not None:
-        component.parent.children.discard(component)
+        component.parent.children.remove(component)
         component.parent = None
 
     stack = [component]
