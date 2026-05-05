@@ -49,6 +49,26 @@ class POSITIONS(enum.Flag):
 
 
 class Component:
+    """Base class for UI elements within a hierarchical component system.
+
+    Coordinates a parent-child tree structure where children are stored in a
+    list to maintain rendering order (Z-order). Components at the end of the
+    list are rendered last, appearing on top of earlier components.
+
+    Gesture Handling:
+      Gestures are dispatched from top to bottom (reverse rendering order). The
+      first component to intersect the touch point consumes the event,
+      preventing 'click-through' to elements positioned underneath.
+
+    Attributes:
+      parent:
+        The containing component. Defaults to None.
+      children:
+        A list of child components, ordered from bottom (index 0) to top
+        (index -1) visually.
+
+    """
+
     def __init__(
         self,
         *,
