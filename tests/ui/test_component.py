@@ -1,7 +1,9 @@
+import math
+
 import pytest
 import pytest_mock
 
-from pireaderos.ui import component
+from pireaderos.ui import component, matrix
 
 
 class TestComponentInitialization:
@@ -20,6 +22,13 @@ class TestComponentInitialization:
         assert top_level._scale == 1.0
         assert top_level._angle == 0.0
         assert isinstance(top_level._anchor, component.POSITIONS)
+        assert top_level._matrix_dirty
+        assert isinstance(
+            top_level._local_matrix, matrix.AffineMatrix2D | None
+        )
+        assert isinstance(
+            top_level._world_matrix, matrix.AffineMatrix2D | None
+        )
 
     def test_init_fails_on_invalid_width_unittest(self) -> None:
         """Raise ValueError when width is invalid."""
@@ -164,6 +173,31 @@ class TestComponentFullScreen:
         assert top_level._anchor is component.POSITIONS.LEFT
 
 
+class TestComponentScreenSpaceProperty:
+    """Test Component screen_space property."""
+
+    def test_screen_space_returns_x_y_tuple_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Return absolute (x, y) tuple."""
+        top_level = component.Component.full_screen(parent=None)
+
+        world_matrix = matrix.AffineMatrix2D()
+        mock_get_world = mocker.patch.object(
+            top_level, "_get_world_matrix", return_value=world_matrix
+        )
+        mock_transform = mocker.patch.object(
+            world_matrix, "transform_point", return_value=(10, 15)
+        )
+
+        abs_x, abs_y = top_level.screen_space
+
+        assert abs_x == 10
+        assert abs_y == 15
+        mock_get_world.assert_called_once()
+        mock_transform.assert_called_once_with(0, 0)
+
+
 class TestComponentXProperty:
     """Test Component x property."""
 
@@ -204,7 +238,7 @@ class TestComponentXProperty:
         ],
     )
     def test_x_sets_absolute_x_unittest(
-        self, position: component.POSITIONS
+        self, mocker: pytest_mock.MockerFixture, position: component.POSITIONS
     ) -> None:
         """X sets the absolute x value."""
         top_level = component.Component(
@@ -214,10 +248,28 @@ class TestComponentXProperty:
             parent=top_level, x=3, y=4, width=6, height=8, anchor=position
         )
 
+        mock_invalidate = mocker.patch.object(
+            component.Component, "_invalidate_transform", return_value=None
+        )
+
         child.x += 100
 
         # Relative position is expected to not depend on anchor
         assert child._x == 103
+        mock_invalidate.assert_called_once()
+
+    def test_x_does_not_call_invalidate_transform_on_same_x_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Do not call _invalidate_transform when x does not change."""
+        top_level = component.Component(
+            parent=None, x=2, y=4, width=6, height=8
+        )
+        spy_invalidate = mocker.spy(top_level, "_invalidate_transform")
+
+        top_level.x += 0
+
+        spy_invalidate.assert_not_called()
 
 
 class TestComponentXRelProperty:
@@ -235,7 +287,9 @@ class TestComponentXRelProperty:
         assert top_level.x_rel == 2
         assert child.x_rel == 3
 
-    def test_x_rel_sets_relative_x_unittest(self) -> None:
+    def test_x_rel_sets_relative_x_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """X_rel sets x position relative to parent."""
         top_level = component.Component(
             parent=None, x=2, y=4, width=6, height=8
@@ -243,12 +297,34 @@ class TestComponentXRelProperty:
         child = component.Component(
             parent=top_level, x=3, y=4, width=6, height=8
         )
+        mock_top_level_invalidate = mocker.patch.object(
+            top_level, "_invalidate_transform", return_value=None
+        )
+        mock_child_invalidate = mocker.patch.object(
+            child, "_invalidate_transform", return_value=None
+        )
 
         top_level.x_rel = 5
         child.x_rel = 6
 
         assert top_level._x == 5
         assert child._x == 6
+        mock_top_level_invalidate.assert_called_once()
+        mock_child_invalidate.assert_called_once()
+
+    def test_x_rel_does_not_call_invalidate_transform_on_same_x_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Do not call _invalidate_transform when x_rel does not change."""
+        top_level = component.Component(
+            parent=None, x=2, y=4, width=6, height=8
+        )
+        spy_invalidate = mocker.spy(top_level, "_invalidate_transform")
+
+        top_level.x_rel += 0
+
+        assert top_level._x == 2
+        spy_invalidate.assert_not_called()
 
 
 class TestComponentYProperty:
@@ -291,7 +367,7 @@ class TestComponentYProperty:
         ],
     )
     def test_y_sets_absolute_y_unittest(
-        self, position: component.POSITIONS
+        self, mocker: pytest_mock.MockerFixture, position: component.POSITIONS
     ) -> None:
         """X sets the absolute x value."""
         top_level = component.Component(
@@ -300,11 +376,28 @@ class TestComponentYProperty:
         child = component.Component(
             parent=top_level, x=3, y=4, width=6, height=8, anchor=position
         )
+        mock_invalidate = mocker.patch.object(
+            component.Component, "_invalidate_transform", return_value=None
+        )
 
         child.y += 100
 
         # Relative position is expected to not depend on anchor
         assert child._y == 104
+        mock_invalidate.assert_called_once()
+
+    def test_y_does_not_call_invalidate_transform_on_same_y_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Do not call _invalidate_transform when y does not change."""
+        top_level = component.Component(
+            parent=None, x=2, y=4, width=6, height=8
+        )
+        spy_invalidate = mocker.spy(top_level, "_invalidate_transform")
+
+        top_level.y += 0
+
+        spy_invalidate.assert_not_called()
 
 
 class TestComponentYRelProperty:
@@ -322,7 +415,9 @@ class TestComponentYRelProperty:
         assert top_level.y_rel == 4
         assert child.y_rel == 5
 
-    def test_y_rel_sets_relative_y_unittest(self) -> None:
+    def test_y_rel_sets_relative_y_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Y_rel sets y position relative to parent."""
         top_level = component.Component(
             parent=None, x=2, y=4, width=6, height=8
@@ -330,12 +425,114 @@ class TestComponentYRelProperty:
         child = component.Component(
             parent=top_level, x=2, y=5, width=6, height=8
         )
+        mock_top_level_invalidate = mocker.patch.object(
+            top_level, "_invalidate_transform", return_value=None
+        )
+        mock_child_invalidate = mocker.patch.object(
+            child, "_invalidate_transform", return_value=None
+        )
 
         top_level.y_rel = 10
         child.y_rel = 11
 
         assert top_level._y == 10
         assert child._y == 11
+        mock_top_level_invalidate.assert_called_once()
+        mock_child_invalidate.assert_called_once()
+
+    def test_y_rel_does_not_call_invalidate_transform_on_same_y_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Do not call _invalidate_transform when y_rel does not change."""
+        top_level = component.Component(
+            parent=None, x=2, y=4, width=6, height=8
+        )
+        spy_invalidate = mocker.spy(top_level, "_invalidate_transform")
+
+        top_level.y_rel += 0
+
+        assert top_level._y == 4
+        spy_invalidate.assert_not_called()
+
+
+class TestComponentScaleProperty:
+    """Test Component scale property."""
+
+    def test_scale_gets_scale_unittest(self) -> None:
+        """Get scale attribute."""
+        top_level = component.Component.full_screen(parent=None)
+        top_level._scale = 1.5
+
+        assert top_level.scale == 1.5
+
+    def test_scale_sets_scale_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Set scale attribute and invalidate transform."""
+        top_level = component.Component.full_screen(parent=None)
+        mock_invalidate = mocker.patch.object(
+            top_level, "_invalidate_transform", return_value=None
+        )
+
+        top_level.scale = 1.5
+
+        assert top_level._scale == 1.5
+        mock_invalidate.assert_called_once()
+
+    def test_scale_does_not_call_invalidate_transform_on_same_scale_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Do not call _invalidate_transform when scale does not change."""
+        top_level = component.Component.full_screen(parent=None)
+        top_level._scale = 1.5
+        mock_invalidate = mocker.patch.object(
+            top_level, "_invalidate_transform", return_value=None
+        )
+
+        top_level.scale += 0
+
+        assert top_level._scale == 1.5
+        mock_invalidate.assert_not_called()
+
+
+class TestComponentAngleProperty:
+    """Test Component angle property."""
+
+    def test_angle_gets_angle_unittest(self) -> None:
+        """Get angle attribute."""
+        top_level = component.Component.full_screen(parent=None)
+        top_level._angle = 90.0
+
+        assert top_level.angle == 90.0
+
+    def test_angle_sets_angle_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Set angle attribute and invalidate transform."""
+        top_level = component.Component.full_screen(parent=None)
+        mock_invalidate = mocker.patch.object(
+            top_level, "_invalidate_transform", return_value=None
+        )
+
+        top_level.angle = 90.0
+
+        assert top_level._angle == 90.0
+        mock_invalidate.assert_called_once()
+
+    def test_angle_does_not_call_invalidate_transform_on_same_angle_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Do not call _invalidate_transform when angle does not change."""
+        top_level = component.Component.full_screen(parent=None)
+        top_level._angle = 90.0
+        mock_invalidate = mocker.patch.object(
+            top_level, "_invalidate_transform", return_value=None
+        )
+
+        top_level.angle += 0
+
+        assert top_level._angle == 90.0
+        mock_invalidate.assert_not_called()
 
 
 class TestComponentAnchorProperty:
@@ -624,6 +821,286 @@ class TestComponentSnapTo:
 
         assert child._x == expected_x
         assert child._y == expected_y
+
+
+class TestComponentInvalidateTransform:
+    """Test Component _invalidate_transform."""
+
+    def test_invalidate_does_nothing_on_dirty_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Do not invalidate transform on dirty matrix."""
+        top_level = component.Component.full_screen(parent=None)
+        child = component.Component.full_screen(parent=top_level)
+        spy_invalidate_child1 = mocker.spy(child, "_invalidate_transform")
+
+        top_level._invalidate_transform()
+
+        spy_invalidate_child1.assert_not_called()
+        assert top_level._matrix_dirty
+        assert child._matrix_dirty
+
+    def test_invalidate_propagates_to_children_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Invalidate transform for all children with False dirty matrix."""
+        top_level = component.Component.full_screen(parent=None)
+        top_level._matrix_dirty = False
+
+        child1 = component.Component.full_screen(parent=top_level)
+        child1._matrix_dirty = False
+        spy_invalidate_child1 = mocker.spy(child1, "_invalidate_transform")
+
+        grandchild = component.Component.full_screen(parent=top_level)
+        grandchild._matrix_dirty = False
+        spy_invalidate_grandchild = mocker.spy(
+            grandchild, "_invalidate_transform"
+        )
+
+        child2 = component.Component.full_screen(parent=top_level)
+        child2._matrix_dirty = False
+        spy_invalidate_child2 = mocker.spy(child2, "_invalidate_transform")
+
+        top_level._invalidate_transform()
+
+        spy_invalidate_child1.assert_called_once()
+        spy_invalidate_grandchild.assert_called_once()
+        spy_invalidate_child2.assert_called_once()
+        assert top_level._matrix_dirty
+        assert child1._matrix_dirty
+        assert grandchild._matrix_dirty
+        assert child2._matrix_dirty
+
+
+class TestComponentGetAnchorOffsets:
+    """Test Component _get_anchor_offsets."""
+
+    @pytest.mark.parametrize(
+        "position, expected_x, expected_y",
+        [
+            (component.POSITIONS.LEFT, 0, 0),
+            (component.POSITIONS.MIDDLE, 500, 2000),
+            (component.POSITIONS.RIGHT, 1000, 0),
+            (component.POSITIONS.TOP, 0, 0),
+            (component.POSITIONS.BOTTOM, 0, 4000),
+            (component.POSITIONS.BOTTOM | component.POSITIONS.NOOP, 0, 4000),
+        ],
+    )
+    def test_get_correct_anchor_offsets_on_one_position_unittest(
+        self, position: component.POSITIONS, expected_x: int, expected_y: int
+    ) -> None:
+        """Get correct anchor offsets on anchor with one position."""
+        top_level = component.Component(
+            parent=None, width=1000, height=4000, anchor=position
+        )
+
+        off_x, off_y = top_level._get_anchor_offsets()
+
+        assert off_x == expected_x
+        assert off_y == expected_y
+
+    @pytest.mark.parametrize(
+        "position1, position2, expected_x, expected_y",
+        [
+            (component.POSITIONS.TOP, component.POSITIONS.LEFT, 0, 0),
+            (component.POSITIONS.TOP, component.POSITIONS.MIDDLE, 50, 0),
+            (component.POSITIONS.TOP, component.POSITIONS.RIGHT, 100, 0),
+            (component.POSITIONS.MIDDLE, component.POSITIONS.RIGHT, 100, 5),
+            (component.POSITIONS.BOTTOM, component.POSITIONS.RIGHT, 100, 10),
+            (component.POSITIONS.MIDDLE, component.POSITIONS.BOTTOM, 50, 10),
+            (component.POSITIONS.LEFT, component.POSITIONS.BOTTOM, 0, 10),
+            (component.POSITIONS.MIDDLE, component.POSITIONS.LEFT, 0, 5),
+            (
+                component.POSITIONS.MIDDLE | component.POSITIONS.NOOP,
+                component.POSITIONS.LEFT,
+                0,
+                5,
+            ),
+        ],
+    )
+    def test_get_correct_anchor_offsets_on_two_positions_unittest(
+        self,
+        position1: component.POSITIONS,
+        position2: component.POSITIONS,
+        expected_x: int,
+        expected_y: int,
+    ) -> None:
+        """Get correct anchor offsets on anchor with two positions."""
+        top_level = component.Component(
+            parent=None, width=100, height=10, anchor=position1 | position2
+        )
+
+        off_x, off_y = top_level._get_anchor_offsets()
+
+        assert off_x == expected_x
+        assert off_y == expected_y
+
+
+class TestComponentGetLocalMatrix:
+    """Test Component _get_local_matrix."""
+
+    def test_get_returns_cached_matrix_unittest(self) -> None:
+        """Return cached local matrix."""
+        mat = matrix.AffineMatrix2D()
+        top_level = component.Component.full_screen(parent=None)
+        top_level._matrix_dirty = False
+        top_level._local_matrix = mat
+
+        local_matrix = top_level._get_local_matrix()
+
+        assert local_matrix is mat
+
+    def test_get_returns_translate_x_matrix_unittest(self) -> None:
+        """Return local matrix with x translation."""
+        top_level = component.Component(parent=None, width=10, height=15)
+        top_level._x = 5
+
+        local_matrix = top_level._get_local_matrix()
+        a, b, c, d, tx, ty = local_matrix._data
+
+        assert a == 1.0
+        assert b == 0.0
+        assert c == 0.0
+        assert d == 1.0
+        assert tx == 5.0
+        assert ty == 0.0
+
+    def test_get_returns_translate_y_matrix_unittest(self) -> None:
+        """Return local matrix with y translation."""
+        top_level = component.Component(parent=None, width=10, height=15)
+        top_level._y = 5
+
+        local_matrix = top_level._get_local_matrix()
+        a, b, c, d, tx, ty = local_matrix._data
+
+        assert a == 1.0
+        assert b == 0.0
+        assert c == 0.0
+        assert d == 1.0
+        assert tx == 0.0
+        assert ty == 5.0
+
+    def test_get_returns_rotate_matrix_unittest(self) -> None:
+        """Return local matrix with rotate."""
+        top_level = component.Component(parent=None, width=10, height=15)
+        top_level._angle = 90.0  # degrees
+
+        local_matrix = top_level._get_local_matrix()
+        a, b, c, d, tx, ty = local_matrix._data
+
+        assert math.isclose(a, 0.0, abs_tol=1e-15)
+        assert b == 1.0
+        assert c == -1.0
+        assert math.isclose(d, 0.0, abs_tol=1e-15)
+        assert tx == 0.0
+        assert ty == 0.0
+
+    def test_get_returns_scale_matrix_unittest(self) -> None:
+        """Return local matrix with scale."""
+        top_level = component.Component(parent=None, width=10, height=15)
+        top_level._scale = 2.0
+
+        local_matrix = top_level._get_local_matrix()
+        a, b, c, d, tx, ty = local_matrix._data
+
+        assert a == 2.0
+        assert b == 0.0
+        assert c == 0.0
+        assert d == 2.0
+        assert tx == 0.0
+        assert ty == 0.0
+
+    @pytest.mark.parametrize(
+        "position, expected_tx, expected_ty",
+        [
+            (component.POSITIONS.LEFT, 0, 0),
+            (component.POSITIONS.MIDDLE, -5, -20),
+            (component.POSITIONS.RIGHT, -10, 0),
+            (component.POSITIONS.TOP, 0, 0),
+            (component.POSITIONS.BOTTOM, 0, -40),
+            (component.POSITIONS.BOTTOM | component.POSITIONS.NOOP, 0, -40),
+        ],
+    )
+    def test_get_returns_anchor_translate_matrix_unittest(
+        self,
+        position: component.POSITIONS,
+        expected_tx: float,
+        expected_ty: float,
+    ) -> None:
+        """Return local matrix with anchor translation."""
+        top_level = component.Component(parent=None, width=10, height=40)
+        top_level._anchor = position
+
+        local_matrix = top_level._get_local_matrix()
+        a, b, c, d, tx, ty = local_matrix._data
+
+        assert a == 1.0
+        assert b == 0.0
+        assert c == 0.0
+        assert d == 1.0
+        assert tx == expected_tx
+        assert ty == expected_ty
+
+
+class TestComponentGetWorldMatrix:
+    """Test Component _get_world_matrix."""
+
+    def test_get_returns_cached_matrix_unittest(self) -> None:
+        """Return cached world matrix."""
+        mat = matrix.AffineMatrix2D()
+        top_level = component.Component.full_screen(parent=None)
+        top_level._matrix_dirty = False
+        top_level._world_matrix = mat
+
+        world_matrix = top_level._get_world_matrix()
+
+        assert world_matrix is mat
+
+    def test_get_returns_local_matrix_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Return local matrix when parent is None."""
+        local_mat = matrix.AffineMatrix2D()
+        top_level = component.Component.full_screen(parent=None)
+        mocker.patch.object(
+            top_level, "_get_local_matrix", return_value=local_mat
+        )
+
+        world_matrix = top_level._get_world_matrix()
+
+        assert world_matrix is local_mat
+
+    def test_get_returns_world_matrix_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Return multiplied matrix up the tree."""
+        top_level = component.Component.full_screen(parent=None)
+        child = component.Component.full_screen(parent=top_level)
+
+        top_level_local = matrix.AffineMatrix2D()
+        child_local = matrix.AffineMatrix2D()
+        mock_top_level_get_local = mocker.patch.object(
+            top_level, "_get_local_matrix", return_value=top_level_local
+        )
+        mocker.patch.object(
+            child, "_get_local_matrix", return_value=child_local
+        )
+        mock_multiply = mocker.patch.object(
+            matrix.AffineMatrix2D, "multiply", return_value=None
+        )
+        spy_top_level_get_world = mocker.spy(top_level, "_get_world_matrix")
+        spy_child_get_world = mocker.spy(child, "_get_world_matrix")
+
+        child._get_world_matrix()
+
+        spy_child_get_world.assert_called_once()
+        spy_top_level_get_world.assert_called_once()
+        mock_multiply.assert_called_once()
+        mock_top_level_get_local.return_value.multiply.assert_called_once_with(
+            child_local
+        )
+        assert not top_level._matrix_dirty
+        assert not child._matrix_dirty
 
 
 class TestRemoveComponent:

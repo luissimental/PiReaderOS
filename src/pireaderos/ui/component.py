@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import enum
+import math
 from typing import Self
+
+from pireaderos.ui import matrix
 
 
 class DIMENSIONS:
@@ -130,6 +133,12 @@ class Component:
         else:
             self._anchor = anchor
 
+        # Flag for detecting changes in x, y, scale, or angle
+        self._matrix_dirty: bool = True
+        # Cache matrices to speed up computation
+        self._local_matrix: matrix.AffineMatrix2D | None = None
+        self._world_matrix: matrix.AffineMatrix2D | None = None
+
     @classmethod
     def full_screen(
         cls,
@@ -161,23 +170,30 @@ class Component:
         )
 
     @property
+    def screen_space(self) -> tuple[int, int]:
+        """The screen space (x, y) of the component's top left corner."""
+        world_matrix = self._get_world_matrix()
+
+        abs_x, abs_y = world_matrix.transform_point(0, 0)
+        return int(abs_x), int(abs_y)
+
+    @property
     def x(self) -> int:
-        """The component's absolute x position. Depends on the anchor."""
-        parent_x = 0 if self.parent is None else self.parent.x  # recursive x
-        abs_x = self._x + parent_x  # left position (default)
+        """The absolute x coordinate of the top-left corner.
 
-        if POSITIONS.MIDDLE in self._anchor:
-            abs_x -= self._width // 2
-        elif POSITIONS.RIGHT in self._anchor:
-            abs_x -= self._width
-
-        return abs_x
+        The anchor of the component is taken into account.
+        """
+        return self.screen_space[0]
 
     @x.setter
     def x(self, x: int) -> None:
+        prev_x = self._x
         # Add the difference since self._x is a relative position and x is an
         # absolute position
         self._x += x - self.x
+
+        if self._x != prev_x:
+            self._invalidate_transform()
 
     @property
     def x_rel(self) -> int:
@@ -186,26 +202,27 @@ class Component:
 
     @x_rel.setter
     def x_rel(self, x_rel: int) -> None:
-        self._x = x_rel
+        if self._x != x_rel:
+            self._x = x_rel
+            self._invalidate_transform()
 
     @property
     def y(self) -> int:
-        """The component's absolute y position. Depends on the anchor."""
-        parent_y = 0 if self.parent is None else self.parent.y  # recursive y
-        abs_y = self._y + parent_y  # top position (default)
+        """The absolute y coordinate of the top-left corner.
 
-        if POSITIONS.MIDDLE in self._anchor:
-            abs_y -= self._height // 2
-        elif POSITIONS.BOTTOM in self._anchor:
-            abs_y -= self._height
-
-        return abs_y
+        The anchor of the component is taken into account.
+        """
+        return self.screen_space[1]
 
     @y.setter
     def y(self, y: int) -> None:
+        prev_y = self._y
         # Add the difference since self._y is a relative position and y is an
         # absolute position
         self._y += y - self.y
+
+        if self._y != prev_y:
+            self._invalidate_transform()
 
     @property
     def y_rel(self) -> int:
@@ -214,7 +231,31 @@ class Component:
 
     @y_rel.setter
     def y_rel(self, y_rel: int) -> None:
-        self._y = y_rel
+        if self._y != y_rel:
+            self._y = y_rel
+            self._invalidate_transform()
+
+    @property
+    def scale(self) -> float:
+        """The component's scale factor."""
+        return self._scale
+
+    @scale.setter
+    def scale(self, scale: float) -> None:
+        if self._scale != scale:
+            self._scale = scale
+            self._invalidate_transform()
+
+    @property
+    def angle(self) -> float:
+        """The component's angle in degrees."""
+        return self._angle
+
+    @angle.setter
+    def angle(self, angle: float) -> None:
+        if self._angle != angle:
+            self._angle = angle
+            self._invalidate_transform()
 
     @property
     def anchor(self) -> POSITIONS:
@@ -300,6 +341,76 @@ class Component:
 
         self._x = snap_x
         self._y = snap_y
+
+    def _invalidate_transform(self) -> None:
+        """Recursively mark self and all children as needing matrix update."""
+        if self._matrix_dirty:
+            return
+
+        self._matrix_dirty = True
+        for child in self.children:
+            child._invalidate_transform()
+
+    def _get_anchor_offsets(self) -> tuple[float, float]:
+        """Return the (x, y) pixels to shift based on the anchor."""
+        off_x = 0.0
+        off_y = 0.0
+
+        if POSITIONS.MIDDLE in self._anchor:
+            off_x = self._width / 2
+            off_y = self._height / 2
+
+        if POSITIONS.LEFT in self._anchor:
+            off_x = 0.0
+        elif POSITIONS.RIGHT in self._anchor:
+            off_x = self._width
+
+        if POSITIONS.TOP in self._anchor:
+            off_y = 0.0
+        elif POSITIONS.BOTTOM in self._anchor:
+            off_y = self._height
+
+        return off_x, off_y
+
+    def _get_local_matrix(self) -> matrix.AffineMatrix2D:
+        """Compute matrix from x, y, scale, and angle. Depends on anchor."""
+        if self._matrix_dirty or self._local_matrix is None:
+            rad = math.radians(self._angle)
+            cos_a = math.cos(rad) * self._scale
+            sin_a = math.sin(rad) * self._scale
+
+            ox, oy = self._get_anchor_offsets()
+
+            # 1. Translate to position
+            # 2. Rotate and scale
+            # 3. Translate by anchor (rotation happens around anchor)
+            tx = self._x - (ox * cos_a - oy * sin_a)
+            ty = self._y - (ox * sin_a + oy * cos_a)
+
+            # Standard Affine Matrix:
+            # [ cos*s, -sin*s, tx ]  # noqa: ERA001
+            # [ sin*s,  cos*s, ty ]  # noqa: ERA001
+            local = matrix.AffineMatrix2D(cos_a, sin_a, -sin_a, cos_a, tx, ty)
+            self._local_matrix = local
+
+            self._matrix_dirty = False
+
+        return self._local_matrix
+
+    def _get_world_matrix(self) -> matrix.AffineMatrix2D:
+        """Compute world matrix up the tree to the top level component."""
+        if self._matrix_dirty or self._world_matrix is None:
+            local = self._get_local_matrix()
+
+            if self.parent is None:
+                self._world_matrix = local
+            else:
+                parent_world_matrix = self.parent._get_world_matrix()
+                self._world_matrix = parent_world_matrix.multiply(local)
+
+            self._matrix_dirty = False
+
+        return self._world_matrix
 
 
 def remove_component(component: Component) -> None:
