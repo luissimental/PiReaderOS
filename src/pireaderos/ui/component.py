@@ -342,6 +342,15 @@ class Component:
         self._x = snap_x
         self._y = snap_y
 
+    def was_touched(self, absolute_x: int, absolute_y: int) -> bool:
+        """Check if absolute x and y fall within component boundaries."""
+        # Inverse the world matrix to transform screen space into local space
+        world_matrix = self._get_world_matrix()
+        inverse_matrix = world_matrix.inverse()
+
+        rel_x, rel_y = inverse_matrix.transform_point(absolute_x, absolute_y)
+        return 0 <= rel_x <= self._width and 0 <= rel_y <= self._height
+
     def _invalidate_transform(self) -> None:
         """Recursively mark self and all children as needing matrix update."""
         if self._matrix_dirty:

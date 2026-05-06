@@ -823,6 +823,26 @@ class TestComponentSnapTo:
         assert child._y == expected_y
 
 
+class TestComponentWasTouched:
+    """Test Component was_touched."""
+
+    def test_touch_returns_true_when_touched_unittest(self) -> None:
+        """Return True when the component was touched."""
+        top_level = component.Component(
+            parent=None, x=5, y=10, width=100, height=200
+        )
+
+        assert top_level.was_touched(5, 10)
+
+    def test_touch_returns_false_when_not_touched_unittest(self) -> None:
+        """Return False when the component was not touched."""
+        top_level = component.Component(
+            parent=None, x=5, y=10, width=100, height=200
+        )
+
+        assert not top_level.was_touched(4, 10)
+
+
 class TestComponentInvalidateTransform:
     """Test Component _invalidate_transform."""
 
