@@ -94,6 +94,10 @@ class TestInputHandlerOnTouchCallback:
 
         assert not driver_patched_handler._queue.empty()
         gesture = driver_patched_handler._queue.get_nowait()
+        assert gesture.type is enums.GestureType.TOUCH_DOWN
+
+        assert not driver_patched_handler._queue.empty()
+        gesture = driver_patched_handler._queue.get_nowait()
         assert gesture.type is enums.GestureType.HOLD
         assert driver_patched_handler._queue.empty()
 
@@ -123,13 +127,9 @@ class TestInputHandlerOnTouchCallback:
         """Does not queue a None resolved gesture."""
         mocker.patch.object(constants.GestureThreshold, "HOLD_TIME", 1000)
         mocker.patch.object(constants.GestureThreshold, "HOLD_DISTANCE", 1000)
-        touches1 = [models.TouchPoint(0, 0, 0, 0)]  # down
-        touches2 = [models.TouchPoint(0, 0, 0, 0)]  # contact
-        touches3 = [models.TouchPoint(0, 0, 0, 1)]  # holding (None)
+        touches1 = []
 
         driver_patched_handler._on_touch_callback(touches1)
-        driver_patched_handler._on_touch_callback(touches2)
-        driver_patched_handler._on_touch_callback(touches3)
 
         assert driver_patched_handler._queue.empty()
 
