@@ -1,6 +1,13 @@
 # pragma: exclude file
 
 
+class Dimensions:
+    """The screen dimensions of the e-paper display."""
+
+    WIDTH = 480
+    HEIGHT = 800
+
+
 class GestureThreshold:
     """Threshold values for gesture recognition.
 

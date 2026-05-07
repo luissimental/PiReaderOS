@@ -3,6 +3,7 @@ import time
 
 from PIL import Image
 
+from pireaderos.common import constants
 from pireaderos.hal import manager
 
 
@@ -12,15 +13,6 @@ class PINS:
     RESET = 17
     BUSY = 24
     DC = 25
-
-
-class DIMENSIONS:
-    """The screen dimensions of the e-paper display."""
-
-    WIDTH = 800
-    HEIGHT = 480
-    WIDTH_BYTES = WIDTH // 8
-    BUFFER_SIZE = WIDTH_BYTES * HEIGHT
 
 
 class COMMANDS(enum.IntEnum):
@@ -94,10 +86,11 @@ class EPaperDriver:
         self._hw = hw
         self._is_screen_on = False
 
-        self._width = DIMENSIONS.WIDTH
-        self._height = DIMENSIONS.HEIGHT
-        self._width_bytes = DIMENSIONS.WIDTH_BYTES
-        self._buffer_size = DIMENSIONS.BUFFER_SIZE
+        # Width and height must be switched
+        self._width = constants.Dimensions.HEIGHT
+        self._height = constants.Dimensions.WIDTH
+        self._width_bytes = self._width // 8
+        self._buffer_size = self._width_bytes * self._height
 
         # Previous and current frame buffers
         self._previous_frame = bytearray(

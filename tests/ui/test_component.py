@@ -3,7 +3,7 @@ import math
 import pytest
 import pytest_mock
 
-from pireaderos.common import enums, models
+from pireaderos.common import constants, enums, models
 from pireaderos.ui import component, matrix
 from pireaderos.ui.behavior import drag, hold
 
@@ -179,8 +179,8 @@ class TestComponentFullScreen:
         assert len(top_level.children) == 0
         assert top_level._x == 0
         assert top_level._y == 0
-        assert top_level._width == component.DIMENSIONS.WIDTH
-        assert top_level._height == component.DIMENSIONS.HEIGHT
+        assert top_level._width == constants.Dimensions.WIDTH
+        assert top_level._height == constants.Dimensions.HEIGHT
         assert top_level._scale == 1.0
         assert top_level._angle == 0.0
         assert top_level._anchor is component.POSITIONS.LEFT
@@ -1014,8 +1014,8 @@ class TestComponentSnapTo:
         expected_y: int,
     ) -> None:
         """Snap has one position for top level component."""
-        mocker.patch.object(component.DIMENSIONS, "WIDTH", 1000)
-        mocker.patch.object(component.DIMENSIONS, "HEIGHT", 4000)
+        mocker.patch.object(constants.Dimensions, "WIDTH", 1000)
+        mocker.patch.object(constants.Dimensions, "HEIGHT", 4000)
         top_level = component.Component(
             parent=None, x=2, y=4, width=6, height=8
         )
@@ -1053,8 +1053,8 @@ class TestComponentSnapTo:
         expected_y: int,
     ) -> None:
         """Snap has two positions for top level component."""
-        mocker.patch.object(component.DIMENSIONS, "WIDTH", 100)
-        mocker.patch.object(component.DIMENSIONS, "HEIGHT", 10)
+        mocker.patch.object(constants.Dimensions, "WIDTH", 100)
+        mocker.patch.object(constants.Dimensions, "HEIGHT", 10)
         top_level = component.Component(
             parent=None, x=2, y=4, width=6, height=8
         )

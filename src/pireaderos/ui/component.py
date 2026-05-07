@@ -4,19 +4,12 @@ import enum
 import math
 from typing import TYPE_CHECKING, Self
 
-from pireaderos.common import enums
+from pireaderos.common import constants, enums
 from pireaderos.ui import matrix
 
 if TYPE_CHECKING:
     from pireaderos.common import models
     from pireaderos.ui.behavior import base
-
-
-class DIMENSIONS:
-    """The screen dimensions of the e-paper display."""
-
-    WIDTH = 480
-    HEIGHT = 800
 
 
 class POSITIONS(enum.Flag):
@@ -172,8 +165,8 @@ class Component:
         """
         return cls(
             parent=parent,
-            width=DIMENSIONS.WIDTH,
-            height=DIMENSIONS.HEIGHT,
+            width=constants.Dimensions.WIDTH,
+            height=constants.Dimensions.HEIGHT,
             anchor=anchor,
         )
 
@@ -398,8 +391,8 @@ class Component:
         snap_y = self._y
 
         if self.parent is None:
-            parent_width = DIMENSIONS.WIDTH
-            parent_height = DIMENSIONS.HEIGHT
+            parent_width = constants.Dimensions.WIDTH
+            parent_height = constants.Dimensions.HEIGHT
         else:
             parent_width = self.parent._width
             parent_height = self.parent._height
