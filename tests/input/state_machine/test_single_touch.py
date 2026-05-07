@@ -37,11 +37,15 @@ class TestSingleTouchStateMachineTouchDownEvent:
         point = hw_models.TouchPoint(0, 0, 0, 0)
         sm = single_touch.SingleTouchStateMachine()
 
-        sm.touch_down(point)
+        gesture: models.GestureEvent | None = sm.touch_down(point)
 
         assert sm.down in sm.configuration
         assert sm._start_point is point
         assert sm._last_point is point
+        assert gesture is not None
+        assert gesture.type is enums.GestureType.TOUCH_DOWN
+        assert gesture.start_point is point
+        assert gesture.end_point is point
 
     @pytest.mark.parametrize(
         "state",
@@ -60,11 +64,12 @@ class TestSingleTouchStateMachineTouchDownEvent:
         sm = single_touch.SingleTouchStateMachine()
         sm.current_state = state
 
-        sm.touch_down(point)
+        gesture: models.GestureEvent | None = sm.touch_down(point)
 
         assert state in sm.configuration
         assert sm._start_point is None
         assert sm._last_point is None
+        assert gesture is None
 
 
 class TestSingleTouchStateMachineTouchContactEvent:
@@ -210,7 +215,7 @@ class TestSingleTouchStateMachineHoldEvent:
 
 
 class TestSingleTouchStateMachineDragEvent:
-    """Test SingleTouchStateMaching drag."""
+    """Test SingleTouchStateMachine drag."""
 
     @pytest.mark.parametrize(
         "state",
@@ -416,6 +421,7 @@ class TestSingleTouchStateMachineReleaseEvent:
     @pytest.mark.parametrize(
         "state",
         [
+            single_touch.SingleTouchStateMachine.contact,
             single_touch.SingleTouchStateMachine.holding,
             single_touch.SingleTouchStateMachine.dragging,
         ],
@@ -454,6 +460,24 @@ class TestSingleTouchStateMachineGenerateGesture:
 
         assert gesture is None
 
+    def test_generate_returns_touch_down_from_down_state_unittest(
+        self,
+    ) -> None:
+        """Return touch down gesture from down state."""
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+
+        gesture: models.GestureEvent | None = None
+        sm = single_touch.SingleTouchStateMachine()
+
+        gesture = sm.generate_gesture(down_point)
+        assert sm.down in sm.configuration
+        assert sm._start_point is down_point
+        assert sm._last_point is down_point
+        assert gesture is not None
+        assert gesture.type is enums.GestureType.TOUCH_DOWN
+        assert gesture.start_point is down_point
+        assert gesture.end_point is down_point
+
     def test_generate_returns_none_from_contact_state_unittest(self) -> None:
         """Return None from contact."""
         down_point = hw_models.TouchPoint(0, 0, 0, 0)
@@ -464,20 +488,10 @@ class TestSingleTouchStateMachineGenerateGesture:
         gesture: models.GestureEvent | None = None
         sm = single_touch.SingleTouchStateMachine()
 
-        gesture = sm.generate_gesture(down_point)
-        assert sm.down in sm.configuration
-        assert sm._start_point is down_point
-        assert sm._last_point is down_point
-        assert gesture is None
+        sm.generate_gesture(down_point)
 
         gesture = sm.generate_gesture(contact_point)
         assert sm.contact in sm.configuration
-        assert sm._start_point is down_point
-        assert sm._last_point is contact_point
-        assert gesture is None
-
-        gesture = sm.generate_gesture(None)
-        assert sm.idle in sm.configuration
         assert sm._start_point is down_point
         assert sm._last_point is contact_point
         assert gesture is None
@@ -644,6 +658,30 @@ class TestSingleTouchStateMachineGenerateGesture:
         assert sm._last_point is contact_point
         assert gesture is not None
         assert gesture.type is enums.GestureType.SWIPE
+        assert gesture.start_point is down_point
+        assert gesture.end_point is contact_point
+
+    def test_generate_returns_release_gesture_from_contact_state_unittest(
+        self,
+    ) -> None:
+        """Return release gesture from contact."""
+        down_point = hw_models.TouchPoint(0, 0, 0, 0)
+        contact_point = hw_models.TouchPoint(
+            0, 0, 0, constants.GestureThreshold.TAP_TIME
+        )
+
+        gesture: models.GestureEvent | None = None
+        sm = single_touch.SingleTouchStateMachine()
+
+        sm.generate_gesture(down_point)
+        sm.generate_gesture(contact_point)
+
+        gesture = sm.generate_gesture(None)
+        assert sm.idle in sm.configuration
+        assert sm._start_point is down_point
+        assert sm._last_point is contact_point
+        assert gesture is not None
+        assert gesture.type is enums.GestureType.RELEASE
         assert gesture.start_point is down_point
         assert gesture.end_point is contact_point
 

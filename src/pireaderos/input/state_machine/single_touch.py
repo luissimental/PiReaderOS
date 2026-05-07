@@ -92,9 +92,17 @@ class SingleTouchStateMachine(statemachine.StateChart):
         distance = geometry.get_distance(point, self._start_point)
         return distance >= constants.GestureThreshold.DRAG_DISTANCE
 
-    def on_touch_down(self, point: hw_models.TouchPoint) -> None:
-        """Set the start point."""
+    def on_touch_down(
+        self, point: hw_models.TouchPoint
+    ) -> models.GestureEvent:
+        """Set the start point and generate the touch down gesture."""
         self._start_point = point
+
+        return models.GestureEvent(
+            type=enums.GestureType.TOUCH_DOWN,
+            start_point=point,
+            end_point=point,
+        )
 
     def on_hold(
         self, point: hw_models.TouchPoint
@@ -169,15 +177,15 @@ class SingleTouchStateMachine(statemachine.StateChart):
                 end_point=self._last_point,
                 swipe_direction=direction,
             )
-        # Release gesture for only hold and drag gestures
-        if source in (self.holding, self.dragging):
+        # Release gesture for selected states
+        if source in (self.holding, self.dragging, self.contact):
             return models.GestureEvent(
                 type=enums.GestureType.RELEASE,
                 start_point=self._start_point,
                 end_point=self._last_point,
             )
 
-        return None
+        return None  # pragma: no cover
 
     def after_transition(self, point: hw_models.TouchPoint) -> None:
         """Set the last point after a transition."""

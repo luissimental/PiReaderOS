@@ -18,6 +18,7 @@ class GestureType(enum.StrEnum):
     HOLD = enum.auto()
     DRAG = enum.auto()
     SWIPE = enum.auto()
+    TOUCH_DOWN = enum.auto()
 
     # Multi-touch gestures
     MULTI_TOUCH_RELEASE = enum.auto()
