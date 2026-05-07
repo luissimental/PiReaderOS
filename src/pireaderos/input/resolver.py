@@ -1,8 +1,8 @@
 import math
 import time
 
-from pireaderos.common import enums, models
-from pireaderos.input import constants, geometry
+from pireaderos.common import constants, enums, models
+from pireaderos.input import geometry
 
 
 class GestureResolver:

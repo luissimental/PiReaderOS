@@ -4,7 +4,7 @@ import enum
 import math
 from typing import TYPE_CHECKING, Self
 
-from pireaderos.input import constants
+from pireaderos.common import constants
 from pireaderos.ui import matrix
 
 if TYPE_CHECKING:

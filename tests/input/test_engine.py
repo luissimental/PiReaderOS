@@ -2,8 +2,8 @@ from unittest import mock
 
 import pytest_mock
 
-from pireaderos.common import enums, models
-from pireaderos.input import constants, engine
+from pireaderos.common import constants, enums, models
+from pireaderos.input import engine
 from pireaderos.input.state_machine import multi_touch, single_touch
 
 
