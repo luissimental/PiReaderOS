@@ -3,7 +3,8 @@ from unittest import mock
 import pytest
 import pytest_mock
 
-from pireaderos.hardware import models, touch
+from pireaderos.common import models
+from pireaderos.hardware import touch
 
 
 @pytest.fixture

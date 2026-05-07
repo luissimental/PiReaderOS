@@ -1,6 +1,6 @@
 import statemachine
 
-from pireaderos.hardware import models as hw_models
+from pireaderos.common import models as hw_models
 from pireaderos.input import constants, enums, geometry, models
 
 

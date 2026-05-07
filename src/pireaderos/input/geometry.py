@@ -1,7 +1,7 @@
 # pragma: exclude file
 import math
 
-from pireaderos.hardware import models
+from pireaderos.common import models
 
 
 def get_ordered_points(

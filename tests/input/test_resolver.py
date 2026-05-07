@@ -4,7 +4,7 @@ import time
 import pytest
 import pytest_mock
 
-from pireaderos.hardware import models as hw_models
+from pireaderos.common import models as hw_models
 from pireaderos.input import constants, enums, models, resolver
 
 

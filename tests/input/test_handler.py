@@ -3,7 +3,7 @@ import queue
 import pytest
 import pytest_mock
 
-from pireaderos.hardware import models
+from pireaderos.common import models
 from pireaderos.input import constants, enums, handler
 
 

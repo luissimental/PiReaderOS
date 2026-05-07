@@ -3,8 +3,8 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+from pireaderos.common import models
 from pireaderos.hal import manager
-from pireaderos.hardware import models
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 # pragma: exclude file
 import dataclasses
 
-from pireaderos.hardware import models
+from pireaderos.common import models
 from pireaderos.input import enums
 
 

@@ -1,7 +1,7 @@
 import queue
 
+from pireaderos.common import models as hw_models
 from pireaderos.hal import manager
-from pireaderos.hardware import models as hw_models
 from pireaderos.hardware import touch
 from pireaderos.input import engine, models, resolver
 

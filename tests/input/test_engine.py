@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest_mock
 
-from pireaderos.hardware import models as hw_models
+from pireaderos.common import models as hw_models
 from pireaderos.input import constants, engine, enums, models
 from pireaderos.input.state_machine import multi_touch, single_touch
 
