@@ -144,7 +144,7 @@ class TestGestureResolverHandleGestureLifecycle:
         "type_",
         [
             type_
-            for type_, is_release in constants.GESTURE_IS_RELEASE.items()
+            for type_, is_release in enums.GESTURE_IS_RELEASE.items()
             if is_release
         ],
     )
@@ -168,7 +168,7 @@ class TestGestureResolverHandleGestureLifecycle:
         "type_",
         [
             type_
-            for type_, has_lifecycle in constants.GESTURE_HAS_LIFECYCLE.items()
+            for type_, has_lifecycle in enums.GESTURE_HAS_LIFECYCLE.items()
             if not has_lifecycle
         ],
     )
@@ -192,7 +192,7 @@ class TestGestureResolverHandleGestureLifecycle:
         "winner_type",
         [
             type_
-            for type_, is_release in constants.GESTURE_IS_RELEASE.items()
+            for type_, is_release in enums.GESTURE_IS_RELEASE.items()
             if not is_release
         ],
     )
@@ -200,7 +200,7 @@ class TestGestureResolverHandleGestureLifecycle:
         "lifecycle_type",
         [
             type_
-            for type_, has_lifecycle in constants.GESTURE_HAS_LIFECYCLE.items()
+            for type_, has_lifecycle in enums.GESTURE_HAS_LIFECYCLE.items()
             if has_lifecycle
         ],
     )

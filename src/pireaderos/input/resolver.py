@@ -93,7 +93,7 @@ class GestureResolver:
         gestures = (gesture for gesture in candidates if gesture is not None)
         gestures_by_priority = sorted(
             gestures,
-            key=lambda gesture: constants.GESTURE_PRIORITY[gesture.type],
+            key=lambda gesture: enums.GESTURE_PRIORITY[gesture.type],
             reverse=True,
         )
 
@@ -176,8 +176,8 @@ class GestureResolver:
 
         """
         if self._active_gesture is not None:
-            winner_is_release = constants.GESTURE_IS_RELEASE[winner.type]
-            active_gesture_has_lifecycle = constants.GESTURE_HAS_LIFECYCLE[
+            winner_is_release = enums.GESTURE_IS_RELEASE[winner.type]
+            active_gesture_has_lifecycle = enums.GESTURE_HAS_LIFECYCLE[
                 self._active_gesture.type
             ]
             # Clear active gesture if winner is a release or active gesture
@@ -274,6 +274,6 @@ class GestureResolver:
             return False
 
         return (
-            constants.GESTURE_PRIORITY[winner.type]
-            >= constants.GESTURE_PRIORITY[self._active_gesture.type]
+            enums.GESTURE_PRIORITY[winner.type]
+            >= enums.GESTURE_PRIORITY[self._active_gesture.type]
         )

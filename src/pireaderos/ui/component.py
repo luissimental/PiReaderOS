@@ -4,7 +4,7 @@ import enum
 import math
 from typing import TYPE_CHECKING, Self
 
-from pireaderos.common import constants
+from pireaderos.common import enums
 from pireaderos.ui import matrix
 
 if TYPE_CHECKING:
@@ -357,7 +357,7 @@ class Component:
           handled the gesture.
 
         """
-        if constants.GESTURE_IS_SINGLE_TOUCH[gesture.type]:
+        if enums.GESTURE_IS_SINGLE_TOUCH[gesture.type]:
             point = gesture.end_point
         else:
             point = gesture.mid_point
