@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import enum
 import math
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
+from pireaderos.input import constants, models
 from pireaderos.ui import matrix
+
+if TYPE_CHECKING:
+    from pireaderos.ui.behavior import base
 
 
 class DIMENSIONS:
@@ -61,7 +65,8 @@ class Component:
     Gesture Handling:
       Gestures are dispatched from top to bottom (reverse rendering order). The
       first component to intersect the touch point consumes the event,
-      preventing 'click-through' to elements positioned underneath.
+      preventing 'click-through' to elements positioned underneath. Low level
+      gesture handling is offered by activating specific behaviors.
 
     Attributes:
       parent:
@@ -138,6 +143,8 @@ class Component:
         # Cache matrices to speed up computation
         self._local_matrix: matrix.AffineMatrix2D | None = None
         self._world_matrix: matrix.AffineMatrix2D | None = None
+
+        self._behaviors: set[base.BaseBehavior] = set()
 
     @classmethod
     def full_screen(
@@ -297,6 +304,77 @@ class Component:
         if component.parent is self:
             self.children.remove(component)
             component.parent = None
+
+    def add_behavior(self, behavior: base.BaseBehavior) -> None:
+        """Add a behavior to the component.
+
+        If behavior type is already present, replace it with the new behavior.
+        """
+        present_behavior = self.get_behavior(type(behavior))
+        if present_behavior is not None:
+            self._behaviors.discard(present_behavior)
+
+        self._behaviors.add(behavior)
+
+    def get_behavior(
+        self, behavior_class: type[base.BaseBehavior]
+    ) -> base.BaseBehavior | None:
+        """Get the behavior instance from the behavior class if present."""
+        for behavior in self._behaviors:
+            if isinstance(behavior, behavior_class):
+                return behavior
+
+        return None
+
+    def remove_behavior(self, behavior: base.BaseBehavior) -> None:
+        """Remove a behavior from the component if present."""
+        self._behaviors.discard(behavior)
+
+    def remove_behaviors(self) -> None:
+        """Remove all behaviors from the component."""
+        self._behaviors.clear()
+
+    def activate_behavior(
+        self, behavior: base.BaseBehavior, gesture: models.GestureEvent
+    ) -> None:
+        """Pass a gesture to a behavior if present."""
+        if behavior in self._behaviors:
+            behavior.handle_gesture(gesture)
+
+    def activate_behaviors(self, gesture: models.GestureEvent) -> None:
+        """Pass a gesture to all behaviors."""
+        for behavior in self._behaviors:
+            behavior.handle_gesture(gesture)
+
+    def dispatch_gesture(
+        self, gesture: models.GestureEvent
+    ) -> Component | None:
+        """Traverse the tree from the component to dispatch a gesture.
+
+        Returns:
+          The component that handled the gesture. May be None if no component
+          handled the gesture.
+
+        """
+        if constants.GESTURE_IS_SINGLE_TOUCH[gesture.type]:
+            point = gesture.end_point
+        else:
+            point = gesture.mid_point
+
+        if point is None:  # pragma: no cover
+            return None
+
+        # Check children first (top to bottom)
+        for child in reversed(self.children):
+            if child.dispatch_gesture(gesture) is not None:
+                return child
+
+        # Dispatch gesture to all behaviors
+        if self.was_touched(point.x, point.y):
+            self.activate_behaviors(gesture)
+            return self
+
+        return None
 
     def snap_to(self, position: POSITIONS) -> None:
         """Snap the component's x and y relative to the parent.

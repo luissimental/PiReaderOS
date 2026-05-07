@@ -3,7 +3,20 @@ import math
 import pytest
 import pytest_mock
 
+from pireaderos.hardware import models as hw_models
+from pireaderos.input import enums, models
 from pireaderos.ui import component, matrix
+from pireaderos.ui.behavior import drag, hold
+
+
+def create_gesture() -> models.GestureEvent:
+    """Create a GestureEvent."""
+    return models.GestureEvent(
+        type=enums.GestureType.HOLD,
+        start_point=hw_models.TouchPoint(0, 0, 0, 0),
+        end_point=hw_models.TouchPoint(0, 0, 0, 0),
+        mid_point=hw_models.TouchPoint(0, 0, 0, 0),
+    )
 
 
 class TestComponentInitialization:
@@ -29,6 +42,7 @@ class TestComponentInitialization:
         assert isinstance(
             top_level._world_matrix, matrix.AffineMatrix2D | None
         )
+        assert isinstance(top_level._behaviors, set)
 
     def test_init_fails_on_invalid_width_unittest(self) -> None:
         """Raise ValueError when width is invalid."""
@@ -680,6 +694,302 @@ class TestComponentRemoveChild:
 
         assert child1.parent is top_level
         assert len(child1.children) == 0
+
+
+class TestComponentAddBehavior:
+    """Test Component add_behavior."""
+
+    def test_add_behavior_to_component_unittest(self) -> None:
+        """Add behavior to component."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior = hold.HoldBehavior()
+
+        top_level.add_behavior(behavior)
+
+        assert len(top_level._behaviors) == 1
+        assert behavior in top_level._behaviors
+
+    def test_add_replace_behavior_unittest(self) -> None:
+        """Replace present behavior with new behavior."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior1 = hold.HoldBehavior()
+        behavior2 = hold.HoldBehavior()
+        top_level._behaviors.add(behavior1)
+
+        top_level.add_behavior(behavior2)
+
+        assert len(top_level._behaviors) == 1
+        assert behavior2 in top_level._behaviors
+
+
+class TestComponentGetBehavior:
+    """Test Component get_behavior."""
+
+    def test_get_present_behavior_unittest(self) -> None:
+        """Get present behavior."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior1 = hold.HoldBehavior()
+        behavior2 = drag.DragBehavior()
+        top_level._behaviors.update((behavior1, behavior2))
+
+        result = top_level.get_behavior(drag.DragBehavior)
+
+        assert result is behavior2
+
+    def test_get_no_present_behavior_unittest(self) -> None:
+        """Return None when behavior is not present."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior = hold.HoldBehavior()
+        top_level._behaviors.add(behavior)
+
+        result = top_level.get_behavior(drag.DragBehavior)
+
+        assert result is None
+
+
+class TestComponentRemoveBehavior:
+    """Test Component remove_behavior."""
+
+    def test_remove_present_behavior_unittest(self) -> None:
+        """Remove present behavior."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior1 = hold.HoldBehavior()
+        behavior2 = drag.DragBehavior()
+        top_level._behaviors.update((behavior1, behavior2))
+
+        top_level.remove_behavior(behavior1)
+
+        assert len(top_level._behaviors) == 1
+        assert behavior2 in top_level._behaviors
+
+    def test_remove_no_present_behavior_unittest(self) -> None:
+        """Remove nothing if behavior is not present."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior1 = hold.HoldBehavior()
+        behavior2 = drag.DragBehavior()
+        top_level._behaviors.add(behavior1)
+
+        top_level.remove_behavior(behavior2)
+
+        assert len(top_level._behaviors) == 1
+        assert behavior1 in top_level._behaviors
+
+
+class TestComponentRemoveBehaviors:
+    """Test Component remove_behaviors."""
+
+    def test_remove_all_behaviors_unittest(self) -> None:
+        """Remove all behaviors."""
+        top_level = component.Component.full_screen(parent=None)
+        top_level._behaviors.update((hold.HoldBehavior(), drag.DragBehavior()))
+
+        top_level.remove_behaviors()
+
+        assert len(top_level._behaviors) == 0
+
+
+class TestComponentActivateBehavior:
+    """Test Component activate_behavior."""
+
+    def test_activate_present_behavior_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Activate present behavior."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior = hold.HoldBehavior()
+        top_level._behaviors.add(behavior)
+
+        mock_gesture = mocker.Mock()
+        mock_handle_gesture = mocker.patch.object(
+            behavior, "handle_gesture", return_value=None
+        )
+
+        top_level.activate_behavior(behavior, mock_gesture)
+
+        mock_handle_gesture.assert_called_once_with(mock_gesture)
+
+    def test_activate_no_present_behavior_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Activate nothing if behavior is not present."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior = hold.HoldBehavior()
+
+        mock_handle_gesture = mocker.patch.object(
+            behavior, "handle_gesture", return_value=None
+        )
+
+        top_level.activate_behavior(behavior, mocker.Mock())
+
+        mock_handle_gesture.assert_not_called()
+
+
+class TestComponentActivateBehaviors:
+    """Test Component activate_behaviors."""
+
+    def test_activate_all_behaviors_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Activate all behaviors."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior1 = hold.HoldBehavior()
+        behavior2 = drag.DragBehavior()
+        top_level._behaviors.update((behavior1, behavior2))
+
+        mock_gesture = mocker.Mock()
+        mock_handle_gesture1 = mocker.patch.object(
+            behavior1, "handle_gesture", return_value=None
+        )
+        mock_handle_gesture2 = mocker.patch.object(
+            behavior2, "handle_gesture", return_value=None
+        )
+
+        top_level.activate_behaviors(mock_gesture)
+
+        mock_handle_gesture1.assert_called_once_with(mock_gesture)
+        mock_handle_gesture2.assert_called_once_with(mock_gesture)
+
+
+class TestDispatchGesture:
+    """Test dispatch_gesture."""
+
+    def test_dispatch_single_touch_gesture_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Dispatch single-touch gesture."""
+        top_level = component.Component(
+            parent=None, x=5, y=10, width=15, height=20
+        )
+        gesture = create_gesture()
+        gesture.end_point.x = 5
+        gesture.end_point.y = 10
+
+        mock_activate = mocker.patch.object(
+            top_level, "activate_behaviors", return_value=None
+        )
+
+        result = top_level.dispatch_gesture(gesture)
+
+        assert result is top_level
+        mock_activate.assert_called_once_with(gesture)
+
+    def test_dispatch_does_not_hit_single_touch_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Dispatch single-touch gesture does not hit component."""
+        top_level = component.Component(
+            parent=None, x=5, y=10, width=15, height=20
+        )
+        gesture = create_gesture()
+        gesture.end_point.x = 4
+        gesture.end_point.y = 10
+
+        mock_activate = mocker.patch.object(
+            top_level, "activate_behaviors", return_value=None
+        )
+
+        result = top_level.dispatch_gesture(gesture)
+
+        assert result is None
+        mock_activate.assert_not_called()
+
+    def test_dispatch_multi_touch_gesture_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Dispatch multi-touch gesture."""
+        top_level = component.Component(
+            parent=None, x=5, y=10, width=15, height=20
+        )
+        gesture = create_gesture()
+        gesture.type = enums.GestureType.MULTI_TOUCH_HOLD
+        if gesture.mid_point is not None:
+            gesture.mid_point.x = 5
+            gesture.mid_point.y = 10
+
+        mock_activate = mocker.patch.object(
+            top_level, "activate_behaviors", return_value=None
+        )
+
+        result = top_level.dispatch_gesture(gesture)
+
+        assert result is top_level
+        mock_activate.assert_called_once_with(gesture)
+
+    def test_dispatch_does_not_hit_multi_touch_gesture_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Dispatch multi-touch gesture does not hit component."""
+        top_level = component.Component(
+            parent=None, x=5, y=10, width=15, height=20
+        )
+        gesture = create_gesture()
+        gesture.type = enums.GestureType.MULTI_TOUCH_HOLD
+        if gesture.mid_point is not None:
+            gesture.mid_point.x = 4
+            gesture.mid_point.y = 10
+
+        mock_activate = mocker.patch.object(
+            top_level, "activate_behaviors", return_value=None
+        )
+
+        result = top_level.dispatch_gesture(gesture)
+
+        assert result is None
+        mock_activate.assert_not_called()
+
+    def test_dispatch_single_touch_to_child_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Dispatch single-touch gesture to child."""
+        top_level = component.Component(
+            parent=None, x=5, y=10, width=15, height=20
+        )
+        child = component.Component(
+            parent=top_level, x=5, y=10, width=15, height=20
+        )
+        gesture = create_gesture()
+        gesture.end_point.x = 10
+        gesture.end_point.y = 20
+
+        mock_top_level_activate = mocker.patch.object(
+            top_level, "activate_behaviors", return_value=None
+        )
+        mock_child_activate = mocker.patch.object(
+            child, "activate_behaviors", return_value=None
+        )
+
+        result = top_level.dispatch_gesture(gesture)
+
+        assert result is child
+        mock_child_activate.assert_called_once_with(gesture)
+        mock_top_level_activate.assert_not_called()
+
+    def test_dispatch_does_not_hit_child_single_touch_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Dispatch single-touch gesture does not hit child."""
+        top_level = component.Component(
+            parent=None, x=5, y=10, width=15, height=20
+        )
+        child = component.Component(
+            parent=top_level, x=5, y=10, width=15, height=20
+        )
+        gesture = create_gesture()
+        gesture.end_point.x = 9
+        gesture.end_point.y = 20
+
+        mock_top_level_activate = mocker.patch.object(
+            top_level, "activate_behaviors", return_value=None
+        )
+        mock_child_activate = mocker.patch.object(
+            child, "activate_behaviors", return_value=None
+        )
+
+        result = top_level.dispatch_gesture(gesture)
+
+        assert result is top_level
+        mock_child_activate.assert_not_called()
+        mock_top_level_activate.assert_called_once_with(gesture)
 
 
 class TestComponentSnapTo:

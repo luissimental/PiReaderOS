@@ -68,6 +68,20 @@ GESTURE_PRIORITY = {
     enums.GestureType.HOLD: 20,
 }
 
+GESTURE_IS_SINGLE_TOUCH = {
+    # Single-touch gestures:
+    enums.GestureType.RELEASE: True,
+    enums.GestureType.DELAYED_TAP: True,
+    enums.GestureType.TAP: True,
+    enums.GestureType.SWIPE: True,
+    enums.GestureType.DRAG: True,
+    enums.GestureType.HOLD: True,
+    # Multi-touch gestures:
+    enums.GestureType.MULTI_TOUCH_RELEASE: False,
+    enums.GestureType.ZOOM_AND_ROTATE: False,
+    enums.GestureType.MULTI_TOUCH_HOLD: False,
+}
+
 GESTURE_IS_RELEASE = {
     # Release gestures:
     enums.GestureType.MULTI_TOUCH_RELEASE: True,
@@ -82,7 +96,7 @@ GESTURE_IS_RELEASE = {
     enums.GestureType.HOLD: False,
 }
 
-# A gesture has a lifecyle if it triggers a release gesture after it ends
+# A gesture has a lifecycle if it triggers a release gesture after it ends
 GESTURE_HAS_LIFECYCLE = {
     # Triggers release:
     enums.GestureType.ZOOM_AND_ROTATE: True,
