@@ -2,8 +2,7 @@ import math
 
 import statemachine
 
-from pireaderos.common import constants, enums, models
-from pireaderos.input import geometry
+from pireaderos.common import constants, enums, geometry, models
 
 
 class MultiTouchStateMachine(statemachine.StateChart):
