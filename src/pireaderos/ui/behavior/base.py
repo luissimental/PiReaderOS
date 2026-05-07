@@ -3,7 +3,7 @@ import abc
 from collections.abc import Callable
 from typing import Any
 
-from pireaderos.input import models
+from pireaderos.common import models
 
 OptionalCallback = Callable[[models.GestureEvent], Any] | None
 

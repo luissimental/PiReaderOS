@@ -2,8 +2,8 @@ from unittest import mock
 
 import pytest_mock
 
-from pireaderos.common import models as hw_models
-from pireaderos.input import constants, engine, enums, models
+from pireaderos.common import models
+from pireaderos.input import constants, engine, enums
 from pireaderos.input.state_machine import multi_touch, single_touch
 
 
@@ -27,7 +27,7 @@ class TestGestureEngineProcessLiftedFingers:
         self, mocker: pytest_mock.MockerFixture
     ) -> None:
         """Return empty list when touches is larger than fsm length."""
-        touches = [hw_models.TouchPoint(0, 0, 0, 0)]  # lifted touch_id: none
+        touches = [models.TouchPoint(0, 0, 0, 0)]  # lifted touch_id: none
         state_machine = single_touch.SingleTouchStateMachine()
         eng = engine.GestureEngine()
         eng._single_touch_fsm[0] = state_machine
@@ -65,7 +65,7 @@ class TestGestureEngineProcessLiftedFingers:
         self, mocker: pytest_mock.MockerFixture
     ) -> None:
         """Return single lifted finger from a multi-touch gesture."""
-        touches = [hw_models.TouchPoint(0, 0, 0, 0)]  # lifted touch_id: 1
+        touches = [models.TouchPoint(0, 0, 0, 0)]  # lifted touch_id: 1
         state_machine0 = single_touch.SingleTouchStateMachine()
         state_machine1 = single_touch.SingleTouchStateMachine()
         eng = engine.GestureEngine()
@@ -133,7 +133,7 @@ class TestGestureEngineProcessSingleTouches:
 
         State machine already exists.
         """
-        touches = [hw_models.TouchPoint(0, 0, 0, 0)]
+        touches = [models.TouchPoint(0, 0, 0, 0)]
         state_machine = single_touch.SingleTouchStateMachine()
         eng = engine.GestureEngine()
         eng._single_touch_fsm[0] = state_machine
@@ -158,7 +158,7 @@ class TestGestureEngineProcessSingleTouches:
         mock_state_machine = mocker.patch(
             "pireaderos.input.engine.single_touch.SingleTouchStateMachine"
         )
-        touches = [hw_models.TouchPoint(0, 0, 0, 0)]
+        touches = [models.TouchPoint(0, 0, 0, 0)]
         eng = engine.GestureEngine()
 
         gestures: list[models.GestureEvent | None] = []
@@ -178,7 +178,7 @@ class TestGestureEngineProcessSingleTouches:
 
         State machine already exists.
         """
-        touches = [hw_models.TouchPoint(0, 0, 0, 0)]
+        touches = [models.TouchPoint(0, 0, 0, 0)]
         state_machine0 = single_touch.SingleTouchStateMachine()
         state_machine1 = single_touch.SingleTouchStateMachine()
         eng = engine.GestureEngine()
@@ -206,7 +206,7 @@ class TestGestureEngineProcessSingleTouches:
 
         State machine needs to be allocated.
         """
-        touches = [hw_models.TouchPoint(0, 0, 0, 0)]
+        touches = [models.TouchPoint(0, 0, 0, 0)]
         state_machine1 = single_touch.SingleTouchStateMachine()
         eng = engine.GestureEngine()
         eng._single_touch_fsm[1] = state_machine1
@@ -237,8 +237,8 @@ class TestGestureEngineProcessSingleTouches:
         State machines already exist.
         """
         touches = [
-            hw_models.TouchPoint(0, 0, 0, 0),
-            hw_models.TouchPoint(1, 0, 0, 0),
+            models.TouchPoint(0, 0, 0, 0),
+            models.TouchPoint(1, 0, 0, 0),
         ]
         state_machine0 = single_touch.SingleTouchStateMachine()
         state_machine1 = single_touch.SingleTouchStateMachine()
@@ -271,8 +271,8 @@ class TestGestureEngineProcessSingleTouches:
             "pireaderos.input.engine.single_touch.SingleTouchStateMachine"
         )
         touches = [
-            hw_models.TouchPoint(0, 0, 0, 0),
-            hw_models.TouchPoint(1, 0, 0, 0),
+            models.TouchPoint(0, 0, 0, 0),
+            models.TouchPoint(1, 0, 0, 0),
         ]
         eng = engine.GestureEngine()
 
@@ -310,9 +310,9 @@ class TestGestureEngineProcessTouchPoints:
         """Return one gesture on single-touch."""
         mocker.patch.object(constants.GestureThreshold, "HOLD_TIME", 1)
         mocker.patch.object(constants.GestureThreshold, "HOLD_DISTANCE", 1)
-        touches1 = [hw_models.TouchPoint(0, 0, 0, 0)]  # down
-        touches2 = [hw_models.TouchPoint(0, 0, 0, 0)]  # contact
-        touches3 = [hw_models.TouchPoint(0, 0, 0, 1)]  # holding
+        touches1 = [models.TouchPoint(0, 0, 0, 0)]  # down
+        touches2 = [models.TouchPoint(0, 0, 0, 0)]  # contact
+        touches3 = [models.TouchPoint(0, 0, 0, 1)]  # holding
 
         gestures: list[models.GestureEvent | None] = []
         eng = engine.GestureEngine()
@@ -331,9 +331,9 @@ class TestGestureEngineProcessTouchPoints:
         """Return release gesture on single-touch."""
         mocker.patch.object(constants.GestureThreshold, "HOLD_TIME", 1)
         mocker.patch.object(constants.GestureThreshold, "HOLD_DISTANCE", 1)
-        touches1 = [hw_models.TouchPoint(0, 0, 0, 0)]  # down
-        touches2 = [hw_models.TouchPoint(0, 0, 0, 0)]  # contact
-        touches3 = [hw_models.TouchPoint(0, 0, 0, 1)]  # holding
+        touches1 = [models.TouchPoint(0, 0, 0, 0)]  # down
+        touches2 = [models.TouchPoint(0, 0, 0, 0)]  # contact
+        touches3 = [models.TouchPoint(0, 0, 0, 1)]  # holding
         touches4 = []  # release
 
         gestures: list[models.GestureEvent | None] = []
@@ -355,16 +355,16 @@ class TestGestureEngineProcessTouchPoints:
         mocker.patch.object(constants.GestureThreshold, "HOLD_TIME", 1)
         mocker.patch.object(constants.GestureThreshold, "HOLD_DISTANCE", 1)
         touches1 = [  # down
-            hw_models.TouchPoint(0, 0, 0, 0),
-            hw_models.TouchPoint(1, 0, 0, 0),
+            models.TouchPoint(0, 0, 0, 0),
+            models.TouchPoint(1, 0, 0, 0),
         ]
         touches2 = [  # contact
-            hw_models.TouchPoint(0, 0, 0, 0),
-            hw_models.TouchPoint(1, 0, 0, 0),
+            models.TouchPoint(0, 0, 0, 0),
+            models.TouchPoint(1, 0, 0, 0),
         ]
         touches3 = [  # holding
-            hw_models.TouchPoint(0, 0, 0, 1),
-            hw_models.TouchPoint(1, 0, 0, 1),
+            models.TouchPoint(0, 0, 0, 1),
+            models.TouchPoint(1, 0, 0, 1),
         ]
 
         gestures: list[models.GestureEvent | None] = []
@@ -389,18 +389,18 @@ class TestGestureEngineProcessTouchPoints:
         mocker.patch.object(constants.GestureThreshold, "HOLD_TIME", 1)
         mocker.patch.object(constants.GestureThreshold, "HOLD_DISTANCE", 1)
         touches1 = [  # down
-            hw_models.TouchPoint(0, 0, 0, 0),
-            hw_models.TouchPoint(1, 0, 0, 0),
+            models.TouchPoint(0, 0, 0, 0),
+            models.TouchPoint(1, 0, 0, 0),
         ]
         touches2 = [  # contact
-            hw_models.TouchPoint(0, 0, 0, 0),
-            hw_models.TouchPoint(1, 0, 0, 0),
+            models.TouchPoint(0, 0, 0, 0),
+            models.TouchPoint(1, 0, 0, 0),
         ]
         touches3 = [  # holding
-            hw_models.TouchPoint(0, 0, 0, 1),
-            hw_models.TouchPoint(1, 0, 0, 1),
+            models.TouchPoint(0, 0, 0, 1),
+            models.TouchPoint(1, 0, 0, 1),
         ]
-        touches4 = [hw_models.TouchPoint(0, 0, 0, 1)]  # holding, release
+        touches4 = [models.TouchPoint(0, 0, 0, 1)]  # holding, release
 
         gestures: list[models.GestureEvent | None] = []
         eng = engine.GestureEngine()
@@ -425,16 +425,16 @@ class TestGestureEngineProcessTouchPoints:
         mocker.patch.object(constants.GestureThreshold, "HOLD_TIME", 1)
         mocker.patch.object(constants.GestureThreshold, "HOLD_DISTANCE", 1)
         touches1 = [  # down
-            hw_models.TouchPoint(0, 0, 0, 0),
-            hw_models.TouchPoint(1, 0, 0, 0),
+            models.TouchPoint(0, 0, 0, 0),
+            models.TouchPoint(1, 0, 0, 0),
         ]
         touches2 = [  # contact
-            hw_models.TouchPoint(0, 0, 0, 0),
-            hw_models.TouchPoint(1, 0, 0, 0),
+            models.TouchPoint(0, 0, 0, 0),
+            models.TouchPoint(1, 0, 0, 0),
         ]
         touches3 = [  # holding
-            hw_models.TouchPoint(0, 0, 0, 1),
-            hw_models.TouchPoint(1, 0, 0, 1),
+            models.TouchPoint(0, 0, 0, 1),
+            models.TouchPoint(1, 0, 0, 1),
         ]
         touches4 = []  # release, release
 

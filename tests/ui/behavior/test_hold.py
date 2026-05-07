@@ -1,8 +1,8 @@
 import pytest
 import pytest_mock
 
-from pireaderos.common import models as hw_models
-from pireaderos.input import enums, models
+from pireaderos.common import models
+from pireaderos.input import enums
 from pireaderos.ui.behavior import hold
 
 
@@ -22,8 +22,8 @@ def create_hold_gesture() -> models.GestureEvent:
     """Create a hold GestureEvent."""
     return models.GestureEvent(
         type=enums.GestureType.HOLD,
-        start_point=hw_models.TouchPoint(0, 0, 0, 0),
-        end_point=hw_models.TouchPoint(0, 0, 0, 0),
+        start_point=models.TouchPoint(0, 0, 0, 0),
+        end_point=models.TouchPoint(0, 0, 0, 0),
     )
 
 

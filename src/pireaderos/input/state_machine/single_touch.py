@@ -1,7 +1,7 @@
 import statemachine
 
-from pireaderos.common import models as hw_models
-from pireaderos.input import constants, enums, geometry, models
+from pireaderos.common import models
+from pireaderos.input import constants, enums, geometry
 
 
 class SingleTouchStateMachine(statemachine.StateChart):
@@ -37,11 +37,11 @@ class SingleTouchStateMachine(statemachine.StateChart):
 
     def __init__(self) -> None:
         super().__init__()
-        self._start_point: hw_models.TouchPoint | None = None
-        self._last_point: hw_models.TouchPoint | None = None
+        self._start_point: models.TouchPoint | None = None
+        self._last_point: models.TouchPoint | None = None
 
     def generate_gesture(
-        self, point: hw_models.TouchPoint | None
+        self, point: models.TouchPoint | None
     ) -> models.GestureEvent | None:
         """Process touch point to generate a gesture.
 
@@ -71,7 +71,7 @@ class SingleTouchStateMachine(statemachine.StateChart):
 
         return None  # pragma: no cover
 
-    def _should_hold(self, point: hw_models.TouchPoint) -> bool:
+    def _should_hold(self, point: models.TouchPoint) -> bool:
         if self._start_point is None:  # pragma: no cover
             return False
 
@@ -83,7 +83,7 @@ class SingleTouchStateMachine(statemachine.StateChart):
             and distance < constants.GestureThreshold.HOLD_DISTANCE
         )
 
-    def _should_drag(self, point: hw_models.TouchPoint) -> bool:
+    def _should_drag(self, point: models.TouchPoint) -> bool:
         if self._start_point is None:  # pragma: no cover
             return False
         if self.dragging.is_active:
@@ -92,9 +92,7 @@ class SingleTouchStateMachine(statemachine.StateChart):
         distance = geometry.get_distance(point, self._start_point)
         return distance >= constants.GestureThreshold.DRAG_DISTANCE
 
-    def on_touch_down(
-        self, point: hw_models.TouchPoint
-    ) -> models.GestureEvent:
+    def on_touch_down(self, point: models.TouchPoint) -> models.GestureEvent:
         """Set the start point and generate the touch down gesture."""
         self._start_point = point
 
@@ -104,9 +102,7 @@ class SingleTouchStateMachine(statemachine.StateChart):
             end_point=point,
         )
 
-    def on_hold(
-        self, point: hw_models.TouchPoint
-    ) -> models.GestureEvent | None:
+    def on_hold(self, point: models.TouchPoint) -> models.GestureEvent | None:
         """Generate the hold gesture."""
         if self._start_point is None:  # pragma: no cover
             return None
@@ -117,9 +113,7 @@ class SingleTouchStateMachine(statemachine.StateChart):
             end_point=point,
         )
 
-    def on_drag(
-        self, point: hw_models.TouchPoint
-    ) -> models.GestureEvent | None:
+    def on_drag(self, point: models.TouchPoint) -> models.GestureEvent | None:
         """Generate the drag gesture."""
         if self._start_point is None:  # pragma: no cover
             return None
@@ -187,6 +181,6 @@ class SingleTouchStateMachine(statemachine.StateChart):
 
         return None  # pragma: no cover
 
-    def after_transition(self, point: hw_models.TouchPoint) -> None:
+    def after_transition(self, point: models.TouchPoint) -> None:
         """Set the last point after a transition."""
         self._last_point = point

@@ -4,16 +4,16 @@ import time
 import pytest
 import pytest_mock
 
-from pireaderos.common import models as hw_models
-from pireaderos.input import constants, enums, models, resolver
+from pireaderos.common import models
+from pireaderos.input import constants, enums, resolver
 
 
 def gesture_event_as(type_: enums.GestureType) -> models.GestureEvent:
     """Return a GestureEvent as the specified type."""
     return models.GestureEvent(
         type=type_,
-        start_point=hw_models.TouchPoint(0, 0, 0, 0),
-        end_point=hw_models.TouchPoint(0, 0, 0, 0),
+        start_point=models.TouchPoint(0, 0, 0, 0),
+        end_point=models.TouchPoint(0, 0, 0, 0),
     )
 
 
@@ -255,9 +255,9 @@ class TestGestureResolverShouldSkipDuplicate:
     def test_skip_duplicate_drag_gesture_unittest(self) -> None:
         """Skip drag gesture when the x and y values match."""
         active_gesture = gesture_event_as(enums.GestureType.DRAG)
-        active_gesture.end_point = hw_models.TouchPoint(0, 2, 3, 0)
+        active_gesture.end_point = models.TouchPoint(0, 2, 3, 0)
         winner = gesture_event_as(enums.GestureType.DRAG)
-        winner.end_point = hw_models.TouchPoint(0, 2, 3, 0)
+        winner.end_point = models.TouchPoint(0, 2, 3, 0)
 
         res = resolver.GestureResolver()
         res._active_gesture = active_gesture
@@ -273,9 +273,9 @@ class TestGestureResolverShouldSkipDuplicate:
     ) -> None:
         """Do not skip drag gesture if the x and/or y values are different."""
         active_gesture = gesture_event_as(enums.GestureType.DRAG)
-        active_gesture.end_point = hw_models.TouchPoint(0, x1, y1, 0)
+        active_gesture.end_point = models.TouchPoint(0, x1, y1, 0)
         winner = gesture_event_as(enums.GestureType.DRAG)
-        winner.end_point = hw_models.TouchPoint(0, x2, y2, 0)
+        winner.end_point = models.TouchPoint(0, x2, y2, 0)
 
         res = resolver.GestureResolver()
         res._active_gesture = active_gesture
@@ -595,9 +595,9 @@ class TestGestureResolverResolvePotentialCandidates:
     def test_resolve_returns_updated_gesture_unittest(self) -> None:
         """Return gesture with updated attributes."""
         drag_cand1 = gesture_event_as(enums.GestureType.DRAG)
-        drag_cand1.end_point = hw_models.TouchPoint(0, 2, 3, 0)
+        drag_cand1.end_point = models.TouchPoint(0, 2, 3, 0)
         drag_cand2 = gesture_event_as(enums.GestureType.DRAG)
-        drag_cand2.end_point = hw_models.TouchPoint(0, 3, 4, 0)
+        drag_cand2.end_point = models.TouchPoint(0, 3, 4, 0)
 
         gesture: models.GestureEvent | None = None
         res = resolver.GestureResolver()

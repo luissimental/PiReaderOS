@@ -1,9 +1,9 @@
 import queue
 
-from pireaderos.common import models as hw_models
+from pireaderos.common import models
 from pireaderos.hal import manager
 from pireaderos.hardware import touch
-from pireaderos.input import engine, models, resolver
+from pireaderos.input import engine, resolver
 
 
 class InputHandler:
@@ -42,7 +42,7 @@ class InputHandler:
         self._resolver = resolver.GestureResolver()
         self._queue: queue.Queue[models.GestureEvent] = queue.Queue()
 
-    def _on_touch_callback(self, touches: list[hw_models.TouchPoint]) -> None:
+    def _on_touch_callback(self, touches: list[models.TouchPoint]) -> None:
         """Interrupt callback for processing touch data into gestures.
 
         Valid gestures are put into a queue for emission.

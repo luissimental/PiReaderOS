@@ -4,10 +4,11 @@ import enum
 import math
 from typing import TYPE_CHECKING, Self
 
-from pireaderos.input import constants, models
+from pireaderos.input import constants
 from pireaderos.ui import matrix
 
 if TYPE_CHECKING:
+    from pireaderos.common import models
     from pireaderos.ui.behavior import base
 
 

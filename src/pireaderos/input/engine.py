@@ -1,5 +1,4 @@
-from pireaderos.common import models as hw_models
-from pireaderos.input import models
+from pireaderos.common import models
 from pireaderos.input.state_machine import multi_touch, single_touch
 
 
@@ -32,7 +31,7 @@ class GestureEngine:
         self._multi_touch_fsm = multi_touch.MultiTouchStateMachine()
 
     def process_touch_points(
-        self, touches: list[hw_models.TouchPoint]
+        self, touches: list[models.TouchPoint]
     ) -> list[models.GestureEvent | None]:
         """Process raw touch data and generate gesture candidates.
 
@@ -68,7 +67,7 @@ class GestureEngine:
         return candidates
 
     def _process_lifted_fingers(
-        self, touches: list[hw_models.TouchPoint]
+        self, touches: list[models.TouchPoint]
     ) -> list[models.GestureEvent | None]:
         """Generate release gestures for fingers that have been lifted.
 
@@ -105,7 +104,7 @@ class GestureEngine:
         return gestures
 
     def _process_single_touches(
-        self, touches: list[hw_models.TouchPoint]
+        self, touches: list[models.TouchPoint]
     ) -> list[models.GestureEvent | None]:
         """Process touch points individually and generate gestures for each.
 

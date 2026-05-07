@@ -1,6 +1,7 @@
 from typing import override
 
-from pireaderos.input import enums, models
+from pireaderos.common import models
+from pireaderos.input import enums
 from pireaderos.ui.behavior import base
 
 

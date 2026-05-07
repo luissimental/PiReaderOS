@@ -4,8 +4,8 @@ import pytest
 import pytest_mock
 import statemachine
 
-from pireaderos.common import models as hw_models
-from pireaderos.input import constants, enums, models
+from pireaderos.common import models
+from pireaderos.input import constants, enums
 from pireaderos.input.state_machine import multi_touch
 
 
@@ -47,13 +47,13 @@ class TestMultiTouchStateMachineStartEvent:
         """Calling start transitions to two_fingers_down."""
         gesture1 = models.GestureEvent(
             type=type1,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=type2,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -88,13 +88,13 @@ class TestMultiTouchStateMachineStartEvent:
         """
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 0, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 0, 0),
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -124,13 +124,13 @@ class TestMultiTouchStateMachineStartEvent:
         """Calling start fails condition with wrong gesture types."""
         start_gest1 = models.GestureEvent(
             type=type1,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         start_gest2 = models.GestureEvent(
             type=type2,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 2, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 2, 0),
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -160,13 +160,13 @@ class TestMultiTouchStateMachineActivateEvent:
 
         gesture1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 4, 0, 0),  # 4 pixels
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 4, 0, 0),  # 4 pixels
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -193,13 +193,13 @@ class TestMultiTouchStateMachineActivateEvent:
 
         gesture1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 1, 0),  # 90 degrees
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 1, 0),  # 90 degrees
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -226,13 +226,13 @@ class TestMultiTouchStateMachineActivateEvent:
 
         gesture1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -266,13 +266,13 @@ class TestMultiTouchStateMachineActivateEvent:
 
         gesture1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -300,13 +300,13 @@ class TestMultiTouchStateMachineActivateEvent:
 
         gesture1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -328,13 +328,13 @@ class TestMultiTouchStateMachineUpdateEvent:
         """Calling update transitions to transforming."""
         gesture1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -374,13 +374,13 @@ class TestMultiTouchStateMachineUpdateEvent:
         """
         gesture1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -426,13 +426,13 @@ class TestMultiTouchStateMachineEndEvent:
         """Calling end transitions to idle."""
         gesture1 = models.GestureEvent(
             type=type1,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=type2,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -454,13 +454,13 @@ class TestMultiTouchStateMachineEndEvent:
         """Calling end doesn't transition to idle on wrong state."""
         gesture1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         gesture2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         sm = multi_touch.MultiTouchStateMachine()
@@ -518,13 +518,13 @@ class TestMultiTouchStateMachineGenerateGesture:
         """Return None if start fails condition."""
         start_gest1 = models.GestureEvent(
             type=type1,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         start_gest2 = models.GestureEvent(
             type=type2,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 2, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 2, 0),
         )
 
         gesture: models.GestureEvent | None = None
@@ -543,13 +543,13 @@ class TestMultiTouchStateMachineGenerateGesture:
         """Return multi-touch hold gesture."""
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 4, 0),  # 4 pixels, 90 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -576,23 +576,23 @@ class TestMultiTouchStateMachineGenerateGesture:
         mocker.patch.object(constants.GestureThreshold, "ROTATE_ANGLE", 1000)
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 4, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 4, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 0, 0),  # 4 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 0, 0),  # 4 pixels, -90 deg
         )
         activate_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 2, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 2, 0),
         )
         activate_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 0, 0),  # 2 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 0, 0),  # 2 pixels, -90 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -618,23 +618,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 4, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 4, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 0, 0),  # 4 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 0, 0),  # 4 pixels, -90 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 2, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 2, 0),
         )
         update_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 0, 0),  # 2 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 0, 0),  # 2 pixels, -90 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -668,23 +668,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 4, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 4, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 0, 0),  # 4 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 0, 0),  # 4 pixels, -90 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 4, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 4, 0),
         )
         update_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 2, 0),  # 2 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 2, 0),  # 2 pixels, -90 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -718,23 +718,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 1, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 4, 1, 0),  # 4 pixels, 0 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 4, 1, 0),  # 4 pixels, 0 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 2, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 2, 1, 0),
         )
         update_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 4, 1, 0),  # 2 pixels, 0 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 4, 1, 0),  # 2 pixels, 0 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -768,23 +768,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 1, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 4, 1, 0),  # 4 pixels, 0 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 4, 1, 0),  # 4 pixels, 0 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 1, 0),
         )
         update_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 2, 1, 0),  # 2 pixels, 0 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 2, 1, 0),  # 2 pixels, 0 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -818,23 +818,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 4, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 4, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 0, 0),  # 4 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 0, 0),  # 4 pixels, -90 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 3, 4, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 3, 4, 0),
         )
         update_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 3, 0, 0),  # 4 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 3, 0, 0),  # 4 pixels, -90 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -868,23 +868,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 4, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 4, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 2, 0),  # 2 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 2, 0),  # 2 pixels, -90 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 8, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 8, 0),
         )
         update_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 0, 0),  # 8 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 0, 0),  # 8 pixels, -90 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -918,23 +918,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 2, 1, 0),  # 4 pixels, 45 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 2, 1, 0),  # 4 pixels, 45 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         update_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, 1, 0),  # 1 pixel, 90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, 1, 0),  # 1 pixel, 90 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -968,23 +968,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 2, 1, 0),  # sqrt2 pixels, 45 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 2, 1, 0),  # sqrt2 pixels, 45 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 0, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 0, 0),
         )
         update_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 2, 0, 0),  # 2 pixels, 0 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 2, 0, 0),  # 2 pixels, 0 deg
         )
 
         gesture: models.GestureEvent | None = None
@@ -1018,23 +1018,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 1, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, -1, 0),  # 2 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, -1, 0),  # 2 pixels, -90 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 0, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 0, 1, 0),
         )
         update_gest2 = models.GestureEvent(  # 2sqrt2 pixels, -45 deg
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 2, -1, 0),
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 2, -1, 0),
         )
 
         gesture: models.GestureEvent | None = None
@@ -1068,23 +1068,23 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 1, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, -1, 0),  # 2 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, -1, 0),  # 2 pixels, -90 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 2, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 2, 1, 0),
         )
         update_gest2 = models.GestureEvent(  # 2sqrt2 pixels, -135 deg
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 0, -1, 0),
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 0, -1, 0),
         )
 
         gesture: models.GestureEvent | None = None
@@ -1115,28 +1115,28 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 1, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, -1, 0),  # 2 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, -1, 0),  # 2 pixels, -90 deg
         )
         update_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 2, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 2, 1, 0),
         )
         update_gest2 = models.GestureEvent(  # 2sqrt2 pixels, -135 deg
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 0, -1, 0),
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 0, -1, 0),
         )
         release_gest = models.GestureEvent(
             type=enums.GestureType.RELEASE,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 0, -1, 0),
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 0, -1, 0),
         )
 
         gesture: models.GestureEvent | None = None
@@ -1164,18 +1164,18 @@ class TestMultiTouchStateMachineGenerateGesture:
 
         start_gest1 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(0, 0, 0, 0),
-            end_point=hw_models.TouchPoint(0, 1, 1, 0),
+            start_point=models.TouchPoint(0, 0, 0, 0),
+            end_point=models.TouchPoint(0, 1, 1, 0),
         )
         start_gest2 = models.GestureEvent(
             type=enums.GestureType.HOLD,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 1, -1, 0),  # 2 pixels, -90 deg
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 1, -1, 0),  # 2 pixels, -90 deg
         )
         release_gest = models.GestureEvent(
             type=enums.GestureType.RELEASE,
-            start_point=hw_models.TouchPoint(1, 0, 0, 0),
-            end_point=hw_models.TouchPoint(1, 0, -1, 0),
+            start_point=models.TouchPoint(1, 0, 0, 0),
+            end_point=models.TouchPoint(1, 0, -1, 0),
         )
 
         gesture: models.GestureEvent | None = None
