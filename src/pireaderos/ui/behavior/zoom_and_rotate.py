@@ -9,6 +9,7 @@ class ZoomAndRotateBehavior(base.BaseBehavior):
 
     def __init__(
         self,
+        *,
         on_zoom_and_rotate: base.OptionalCallback = None,
         on_release: base.OptionalCallback = None,
     ) -> None:
