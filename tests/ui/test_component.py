@@ -3,8 +3,7 @@ import math
 import pytest
 import pytest_mock
 
-from pireaderos.common import models
-from pireaderos.input import enums
+from pireaderos.common import enums, models
 from pireaderos.ui import component, matrix
 from pireaderos.ui.behavior import drag, hold
 

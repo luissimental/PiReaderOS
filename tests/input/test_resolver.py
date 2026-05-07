@@ -4,8 +4,8 @@ import time
 import pytest
 import pytest_mock
 
-from pireaderos.common import models
-from pireaderos.input import constants, enums, resolver
+from pireaderos.common import enums, models
+from pireaderos.input import constants, resolver
 
 
 def gesture_event_as(type_: enums.GestureType) -> models.GestureEvent:

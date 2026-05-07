@@ -1,7 +1,7 @@
 # pragma: exclude file
 import dataclasses
 
-from pireaderos.input import enums
+from pireaderos.common import enums
 
 
 @dataclasses.dataclass

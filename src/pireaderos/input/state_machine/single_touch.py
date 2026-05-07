@@ -1,7 +1,7 @@
 import statemachine
 
-from pireaderos.common import models
-from pireaderos.input import constants, enums, geometry
+from pireaderos.common import enums, models
+from pireaderos.input import constants, geometry
 
 
 class SingleTouchStateMachine(statemachine.StateChart):

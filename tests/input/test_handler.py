@@ -3,8 +3,8 @@ import queue
 import pytest
 import pytest_mock
 
-from pireaderos.common import models
-from pireaderos.input import constants, enums, handler
+from pireaderos.common import enums, models
+from pireaderos.input import constants, handler
 
 
 @pytest.fixture

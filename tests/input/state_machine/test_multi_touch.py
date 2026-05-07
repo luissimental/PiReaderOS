@@ -4,8 +4,8 @@ import pytest
 import pytest_mock
 import statemachine
 
-from pireaderos.common import models
-from pireaderos.input import constants, enums
+from pireaderos.common import enums, models
+from pireaderos.input import constants
 from pireaderos.input.state_machine import multi_touch
 
 

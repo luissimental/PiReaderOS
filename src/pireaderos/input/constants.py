@@ -1,5 +1,5 @@
 # pragma: exclude file
-from pireaderos.input import enums
+from pireaderos.common import enums
 
 
 class GestureThreshold:
