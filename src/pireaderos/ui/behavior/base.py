@@ -17,6 +17,17 @@ class BaseBehavior(abc.ABC):
         on_touch_down: OptionalCallback = None,
         on_release: OptionalCallback = None,
     ) -> None:
+        """Initialize the TouchDownBehavior object.
+
+        Args:
+          on_touch_down:
+            The optional callback for touch down events. Must accept a
+            GestureEvent.
+          on_release:
+            The optional callback for release events. Must accept a
+            GestureEvent.
+
+        """
         self._on_touch_down_callback = on_touch_down
         self._on_release_callback = on_release
         self._is_active = False
