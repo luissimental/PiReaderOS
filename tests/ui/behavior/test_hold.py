@@ -54,6 +54,7 @@ class TestHoldBehaviorHandleGesture:
     ) -> None:
         """Handle hold gesture."""
         behavior = hold.HoldBehavior()
+        behavior._is_active = True
         mock_on_hold = mocker.patch.object(
             behavior, "_on_hold", return_value=None
         )
@@ -61,7 +62,7 @@ class TestHoldBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert behavior._is_holding
+        assert not behavior._is_active
         mock_on_hold.assert_called_once_with(gesture)
 
     def test_handle_hold_gesture_already_holding_unittest(
@@ -69,15 +70,13 @@ class TestHoldBehaviorHandleGesture:
     ) -> None:
         """Handle hold gesture when already holding."""
         behavior = hold.HoldBehavior()
-        behavior._is_holding = True
         mock_on_hold = mocker.patch.object(
             behavior, "_on_hold", return_value=None
         )
-        gesture = create_hold_gesture()
 
-        behavior.handle_gesture(gesture)
+        behavior.handle_gesture(create_hold_gesture())
 
-        assert behavior._is_holding
+        assert not behavior._is_active
         mock_on_hold.assert_not_called()
 
     def test_handle_release_gesture_unittest(
@@ -85,7 +84,7 @@ class TestHoldBehaviorHandleGesture:
     ) -> None:
         """Handle release gesture."""
         behavior = hold.HoldBehavior()
-        behavior._is_holding = True
+        behavior._is_active = True
         mock_on_release = mocker.patch.object(
             behavior, "_on_release", return_value=None
         )
@@ -93,7 +92,7 @@ class TestHoldBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert not behavior._is_holding
+        assert not behavior._is_active
         mock_on_release.assert_called_once_with(gesture)
 
     def test_handle_release_gesture_already_released_unittest(
@@ -108,7 +107,7 @@ class TestHoldBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert not behavior._is_holding
+        assert not behavior._is_active
         mock_on_release.assert_not_called()
 
 

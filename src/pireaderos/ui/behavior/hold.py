@@ -10,12 +10,16 @@ class HoldBehavior(base.BaseBehavior):
     def __init__(
         self,
         *,
+        on_touch_down: base.OptionalCallback = None,
         on_hold: base.OptionalCallback = None,
         on_release: base.OptionalCallback = None,
     ) -> None:
         """Initialize the HoldBehavior object.
 
         Args:
+          on_touch_down:
+            The optional callback for touch down events. Must accept a
+            GestureEvent.
           on_hold:
             The optional callback for hold events. Must accept a GestureEvent.
           on_release:
@@ -23,26 +27,18 @@ class HoldBehavior(base.BaseBehavior):
             GestureEvent.
 
         """
+        super().__init__(on_touch_down=on_touch_down, on_release=on_release)
         self._on_hold_callback = on_hold
-        self._on_release_callback = on_release
-        self._is_holding = False
 
     @override
     def handle_gesture(self, gesture: models.GestureEvent) -> None:
-        if gesture.type is enums.GestureType.HOLD and not self._is_holding:
-            self._on_hold(gesture)
-            self._is_holding = True
+        super().handle_gesture(gesture)
 
-        if gesture.type is enums.GestureType.RELEASE and self._is_holding:
-            self._on_release(gesture)
-            self._is_holding = False
+        if gesture.type is enums.GestureType.HOLD and self._is_active:
+            self._on_hold(gesture)
+            self._is_active = False
 
     def _on_hold(self, gesture: models.GestureEvent) -> None:
         """Handle the hold gesture."""
         if self._on_hold_callback is not None:
             self._on_hold_callback(gesture)
-
-    def _on_release(self, gesture: models.GestureEvent) -> None:
-        """Handle the release gesture."""
-        if self._on_release_callback is not None:
-            self._on_release_callback(gesture)

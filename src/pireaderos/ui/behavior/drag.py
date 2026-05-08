@@ -10,12 +10,16 @@ class DragBehavior(base.BaseBehavior):
     def __init__(
         self,
         *,
+        on_touch_down: base.OptionalCallback = None,
         on_drag: base.OptionalCallback = None,
         on_release: base.OptionalCallback = None,
     ) -> None:
         """Initialize the DragBehavior object.
 
         Args:
+          on_touch_down:
+            The optional callback for touch down events. Must accept a
+            GestureEvent.
           on_drag:
             The optional callback for drag events. Must accept a GestureEvent.
           on_release:
@@ -23,26 +27,17 @@ class DragBehavior(base.BaseBehavior):
             GestureEvent.
 
         """
+        super().__init__(on_touch_down=on_touch_down, on_release=on_release)
         self._on_drag_callback = on_drag
-        self._on_release_callback = on_release
-        self._is_dragging = False
 
     @override
     def handle_gesture(self, gesture: models.GestureEvent) -> None:
-        if gesture.type is enums.GestureType.DRAG and not self._is_dragging:
-            self._on_drag(gesture)
-            self._is_dragging = True
+        super().handle_gesture(gesture)
 
-        if gesture.type is enums.GestureType.RELEASE and self._is_dragging:
-            self._on_release(gesture)
-            self._is_dragging = False
+        if gesture.type is enums.GestureType.DRAG and self._is_active:
+            self._on_drag(gesture)
 
     def _on_drag(self, gesture: models.GestureEvent) -> None:
         """Handle the drag gesture."""
         if self._on_drag_callback is not None:
             self._on_drag_callback(gesture)
-
-    def _on_release(self, gesture: models.GestureEvent) -> None:
-        """Handle the release gesture."""
-        if self._on_release_callback is not None:
-            self._on_release_callback(gesture)

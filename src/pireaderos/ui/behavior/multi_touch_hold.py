@@ -26,23 +26,23 @@ class MultiTouchHoldBehavior(base.BaseBehavior):
         """
         self._on_hold_callback = on_hold
         self._on_release_callback = on_release
-        self._is_holding = False
+        self.is_active = False
 
     @override
     def handle_gesture(self, gesture: models.GestureEvent) -> None:
         if (
             gesture.type is enums.GestureType.MULTI_TOUCH_HOLD
-            and not self._is_holding
+            and not self.is_active
         ):
             self._on_hold(gesture)
-            self._is_holding = True
+            self.is_active = True
 
         if (
             gesture.type is enums.GestureType.MULTI_TOUCH_RELEASE
-            and self._is_holding
+            and self.is_active
         ):
             self._on_release(gesture)
-            self._is_holding = False
+            self.is_active = False
 
     def _on_hold(self, gesture: models.GestureEvent) -> None:
         """Handle the multi-touch hold gesture."""

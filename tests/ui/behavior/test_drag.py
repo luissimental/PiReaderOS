@@ -54,6 +54,7 @@ class TestDragBehaviorHandleGesture:
     ) -> None:
         """Handle drag gesture."""
         behavior = drag.DragBehavior()
+        behavior._is_active = True
         mock_on_drag = mocker.patch.object(
             behavior, "_on_drag", return_value=None
         )
@@ -61,15 +62,15 @@ class TestDragBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert behavior._is_dragging
+        assert behavior._is_active
         mock_on_drag.assert_called_once_with(gesture)
 
-    def test_handle_drag_gesture_already_holding_unittest(
+    def test_handle_drag_gesture_already_dragging_unittest(
         self, mocker: pytest_mock.MockerFixture
     ) -> None:
-        """Handle drag gesture when already holding."""
+        """Handle drag gesture when already dragging."""
         behavior = drag.DragBehavior()
-        behavior._is_dragging = True
+        behavior._is_active = True
         mock_on_drag = mocker.patch.object(
             behavior, "_on_drag", return_value=None
         )
@@ -77,15 +78,15 @@ class TestDragBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert behavior._is_dragging
-        mock_on_drag.assert_not_called()
+        assert behavior._is_active
+        mock_on_drag.assert_called_once_with(gesture)
 
     def test_handle_release_gesture_unittest(
         self, mocker: pytest_mock.MockerFixture
     ) -> None:
         """Handle release gesture."""
         behavior = drag.DragBehavior()
-        behavior._is_dragging = True
+        behavior._is_active = True
         mock_on_release = mocker.patch.object(
             behavior, "_on_release", return_value=None
         )
@@ -93,7 +94,7 @@ class TestDragBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert not behavior._is_dragging
+        assert not behavior._is_active
         mock_on_release.assert_called_once_with(gesture)
 
     def test_handle_release_gesture_already_released_unittest(
@@ -108,7 +109,7 @@ class TestDragBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert not behavior._is_dragging
+        assert not behavior._is_active
         mock_on_release.assert_not_called()
 
 

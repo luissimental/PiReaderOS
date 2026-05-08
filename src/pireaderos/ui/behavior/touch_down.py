@@ -1,6 +1,6 @@
 from typing import override
 
-from pireaderos.common import enums, models
+from pireaderos.common import models
 from pireaderos.ui.behavior import base
 
 
@@ -24,29 +24,8 @@ class TouchDownBehavior(base.BaseBehavior):
             GestureEvent.
 
         """
-        self._on_touch_down_callback = on_touch_down
-        self._on_release_callback = on_release
-        self._is_active = False
+        super().__init__(on_touch_down=on_touch_down, on_release=on_release)
 
     @override
     def handle_gesture(self, gesture: models.GestureEvent) -> None:
-        if (
-            gesture.type is enums.GestureType.TOUCH_DOWN
-            and not self._is_active
-        ):
-            self._on_touch_down(gesture)
-            self._is_active = True
-
-        if gesture.type is enums.GestureType.RELEASE and self._is_active:
-            self._on_release(gesture)
-            self._is_active = False
-
-    def _on_touch_down(self, gesture: models.GestureEvent) -> None:
-        """Handle the touch down gesture."""
-        if self._on_touch_down_callback is not None:
-            self._on_touch_down_callback(gesture)
-
-    def _on_release(self, gesture: models.GestureEvent) -> None:
-        """Handle the release gesture."""
-        if self._on_release_callback is not None:
-            self._on_release_callback(gesture)
+        super().handle_gesture(gesture)

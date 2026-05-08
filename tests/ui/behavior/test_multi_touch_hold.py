@@ -63,7 +63,7 @@ class TestMultiTouchHoldBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert behavior._is_holding
+        assert behavior.is_active
         mock_on_hold.assert_called_once_with(gesture)
 
     def test_handle_hold_gesture_already_holding_unittest(
@@ -71,7 +71,7 @@ class TestMultiTouchHoldBehaviorHandleGesture:
     ) -> None:
         """Handle multi-touch hold gesture when already holding."""
         behavior = multi_touch_hold.MultiTouchHoldBehavior()
-        behavior._is_holding = True
+        behavior.is_active = True
         mock_on_hold = mocker.patch.object(
             behavior, "_on_hold", return_value=None
         )
@@ -79,7 +79,7 @@ class TestMultiTouchHoldBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert behavior._is_holding
+        assert behavior.is_active
         mock_on_hold.assert_not_called()
 
     def test_handle_release_gesture_unittest(
@@ -87,7 +87,7 @@ class TestMultiTouchHoldBehaviorHandleGesture:
     ) -> None:
         """Handle multi-touch release gesture."""
         behavior = multi_touch_hold.MultiTouchHoldBehavior()
-        behavior._is_holding = True
+        behavior.is_active = True
         mock_on_release = mocker.patch.object(
             behavior, "_on_release", return_value=None
         )
@@ -95,7 +95,7 @@ class TestMultiTouchHoldBehaviorHandleGesture:
 
         behavior.handle_gesture(gesture)
 
-        assert not behavior._is_holding
+        assert not behavior.is_active
         mock_on_release.assert_called_once_with(gesture)
 
     def test_handle_release_gesture_already_released_unittest(
@@ -109,7 +109,7 @@ class TestMultiTouchHoldBehaviorHandleGesture:
 
         behavior.handle_gesture(create_mt_release_gesture())
 
-        assert not behavior._is_holding
+        assert not behavior.is_active
         mock_on_release.assert_not_called()
 
 
