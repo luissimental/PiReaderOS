@@ -2,6 +2,14 @@
 import enum
 
 
+class RefreshMode(enum.Enum):
+    """The modes to refresh the e-paper display."""
+
+    FULL = enum.auto()
+    FAST = enum.auto()
+    PARTIAL = enum.auto()
+
+
 class GestureType(enum.StrEnum):
     """The types of gesture events that can be detected.
 

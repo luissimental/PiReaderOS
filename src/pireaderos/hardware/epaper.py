@@ -3,7 +3,7 @@ import time
 
 from PIL import Image
 
-from pireaderos.common import constants
+from pireaderos.common import constants, enums
 from pireaderos.hal import manager
 
 
@@ -39,14 +39,6 @@ class COMMANDS(enum.IntEnum):
     DEEP_SLEEP_MODE = 0x10
 
 
-class REFRESHMODES(enum.StrEnum):
-    """The modes to refresh the e-paper display."""
-
-    FULL = enum.auto()
-    FAST = enum.auto()
-    PARTIAL = enum.auto()
-
-
 class COLORS(enum.IntEnum):
     """The supported colors on the e-paper display."""
 
@@ -69,7 +61,7 @@ class EPaperDriver:
         display.draw_frame(image) # draw image to buffers
         display.write_frame_buffers() # write buffers to display's RAM
         display.refresh_display(
-            REFRESHMODES.FULL,
+            RefreshMode.FULL,
             power_on_display=True,
             power_off_display=True,
         )
@@ -78,7 +70,7 @@ class EPaperDriver:
       Clear e-paper display::
 
         display.clear_frame_buffers() # clear buffers and display's RAM
-        display.refresh_display(REFRESHMODES.FULL)
+        display.refresh_display(RefreshMode.FULL)
 
     """
 
@@ -310,7 +302,7 @@ class EPaperDriver:
 
     def refresh_display(
         self,
-        mode: REFRESHMODES,
+        mode: enums.RefreshMode,
         *,
         power_on_display: bool = False,
         power_off_display: bool = False,
@@ -328,17 +320,17 @@ class EPaperDriver:
         if power_off_display:
             update_sequence |= 0x03  # ANALOG_OFF, CLOCK_OFF
 
-        if mode is REFRESHMODES.FULL:
+        if mode is enums.RefreshMode.FULL:
             buffer_comparison |= 0x40  # Do not compare buffers
             update_sequence |= 0x34  # TEMP_LOAD, LUT_LOAD, DISPLAY_START
-        elif mode is REFRESHMODES.FAST:
+        elif mode is enums.RefreshMode.FAST:
             # Write high temperature to the register for a faster refresh
             self._send_command(COMMANDS.WRITE_TO_TEMPERATURE_REGISTER)
             self._send_byte(0x6A)
 
             buffer_comparison |= 0x40  # Do not compare buffers
             update_sequence |= 0x04  # DISPLAY_START
-        elif mode is REFRESHMODES.PARTIAL:
+        elif mode is enums.RefreshMode.PARTIAL:
             buffer_comparison |= 0x00  # Compare buffers
             update_sequence |= 0x1C  # LUT_LOAD, MODE_SELECT 2, DISPLAY_START
 

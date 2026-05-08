@@ -4,6 +4,7 @@ import pytest
 import pytest_mock
 from PIL import Image
 
+from pireaderos.common import enums
 from pireaderos.hal import manager
 from pireaderos.hardware import epaper
 
@@ -680,7 +681,7 @@ class TestEPaperDriverRefreshDisplay:
         """Does not refresh display when the display is off."""
         mock_epaper_driver_spi._is_screen_on = False
 
-        mock_epaper_driver_spi.refresh_display(epaper.REFRESHMODES.FULL)
+        mock_epaper_driver_spi.refresh_display(enums.RefreshMode.FULL)
 
         mock_epaper_driver_spi._send_command.assert_not_called()
         mock_epaper_driver_spi._send_byte.assert_not_called()
@@ -778,7 +779,7 @@ class TestEPaperDriverRefreshDisplay:
             mock_epaper_driver_spi._wait_on_busy, "_wait_on_busy"
         )
 
-        mock_epaper_driver_spi.refresh_display(mode=epaper.REFRESHMODES.FULL)
+        mock_epaper_driver_spi.refresh_display(mode=enums.RefreshMode.FULL)
 
         mock_spi_calls.assert_has_calls(
             [
@@ -813,7 +814,7 @@ class TestEPaperDriverRefreshDisplay:
             mock_epaper_driver_spi._wait_on_busy, "_wait_on_busy"
         )
 
-        mock_epaper_driver_spi.refresh_display(mode=epaper.REFRESHMODES.FAST)
+        mock_epaper_driver_spi.refresh_display(mode=enums.RefreshMode.FAST)
 
         mock_spi_calls.assert_has_calls(
             [
@@ -852,9 +853,7 @@ class TestEPaperDriverRefreshDisplay:
             mock_epaper_driver_spi._wait_on_busy, "_wait_on_busy"
         )
 
-        mock_epaper_driver_spi.refresh_display(
-            mode=epaper.REFRESHMODES.PARTIAL
-        )
+        mock_epaper_driver_spi.refresh_display(mode=enums.RefreshMode.PARTIAL)
 
         mock_spi_calls.assert_has_calls(
             [
