@@ -39,13 +39,6 @@ class COMMANDS(enum.IntEnum):
     DEEP_SLEEP_MODE = 0x10
 
 
-class COLORS(enum.IntEnum):
-    """The supported colors on the e-paper display."""
-
-    BLACK = 0x00
-    WHITE = 0xFF
-
-
 class EPaperDriver:
     """Driver for the Good Display 4.26 inch e-paper display.
 
@@ -398,10 +391,10 @@ class EPaperDriver:
 
         # Clear frames
         self._current_frame = bytearray(
-            COLORS.WHITE for _ in range(self._buffer_size)
+            enums.Color.WHITE for _ in range(self._buffer_size)
         )
         self._previous_frame = bytearray(
-            COLORS.WHITE for _ in range(self._buffer_size)
+            enums.Color.WHITE for _ in range(self._buffer_size)
         )
 
         self._set_display_window(x=0, y=0, w=self._width, h=self._height)
@@ -439,7 +432,7 @@ class EPaperDriver:
                     src_offset + col
                 ]
 
-    def fill_frame(self, color: COLORS) -> None:
+    def fill_frame(self, color: enums.Color) -> None:
         """Fill the current frame buffer with a single color."""
         self._current_frame = bytearray(
             color for _ in range(self._buffer_size)

@@ -10,6 +10,13 @@ class RefreshMode(enum.Enum):
     PARTIAL = enum.auto()
 
 
+class Color(enum.IntEnum):
+    """The supported colors on the e-paper display."""
+
+    BLACK = 0x00
+    WHITE = 0xFF
+
+
 class GestureType(enum.StrEnum):
     """The types of gesture events that can be detected.
 

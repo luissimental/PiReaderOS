@@ -1163,7 +1163,7 @@ class TestEPaperDriverDrawFrame:
         image = Image.new(
             "1",
             (mock_epaper_driver._width, mock_epaper_driver._height),
-            epaper.COLORS.BLACK,
+            enums.Color.BLACK,
         )
         mock_epaper_driver.draw_frame(image)
 
@@ -1225,7 +1225,7 @@ class TestEPaperDriverFillFrame:
             0xFF for _ in range(width_bytes * height)
         )
 
-        mock_epaper_driver.fill_frame(epaper.COLORS.BLACK)
+        mock_epaper_driver.fill_frame(enums.Color.BLACK)
 
         current_frame = mock_epaper_driver._current_frame
 
