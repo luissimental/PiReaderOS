@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import enum
 import math
 from typing import TYPE_CHECKING, Self
 
@@ -10,43 +9,6 @@ from pireaderos.ui import matrix
 if TYPE_CHECKING:
     from pireaderos.common import models
     from pireaderos.ui.behavior import base
-
-
-class POSITIONS(enum.Flag):
-    """The predefined component positions.
-
-    Two positions can be combined to create position combinations. For example,
-    `TOP | LEFT` refers to the TOP LEFT of the component.
-
-    `NOOP` by itself represents a default state depending on the API, however,
-    its presence with other positions can be simply ignored. For example,
-    `NOOP | TOP | LEFT` is equivalent to `TOP | LEFT`.
-
-    Unconventional combinations such as `LEFT | RIGHT` or `TOP | BOTTOM` may
-    result in undefined behavior.
-
-    Attributes:
-      NOOP:
-        Do nothing (no-op).
-      TOP:
-        The TOP position of the component.
-      BOTTOM:
-        The BOTTOM position of the component.
-      MIDDLE:
-        The MIDDLE position of the component.
-      LEFT:
-        The LEFT position of the component.
-      RIGHT:
-        The RIGHT position of the component.
-
-    """
-
-    NOOP = enum.auto()
-    TOP = enum.auto()
-    BOTTOM = enum.auto()
-    MIDDLE = enum.auto()
-    LEFT = enum.auto()
-    RIGHT = enum.auto()
 
 
 class Component:
@@ -79,7 +41,7 @@ class Component:
         y: int = 0,
         width: int,
         height: int,
-        anchor: POSITIONS = POSITIONS.TOP | POSITIONS.LEFT,
+        anchor: enums.Position = enums.Position.TOP | enums.Position.LEFT,
     ) -> None:
         """Initialize the component.
 
@@ -127,8 +89,8 @@ class Component:
         self._scale = 1.0
         self._angle = 0.0
 
-        if anchor is POSITIONS.NOOP:
-            self._anchor = POSITIONS.TOP | POSITIONS.LEFT
+        if anchor is enums.Position.NOOP:
+            self._anchor = enums.Position.TOP | enums.Position.LEFT
         else:
             self._anchor = anchor
 
@@ -144,7 +106,7 @@ class Component:
     def full_screen(
         cls,
         parent: Component | None,
-        anchor: POSITIONS = POSITIONS.TOP | POSITIONS.LEFT,
+        anchor: enums.Position = enums.Position.TOP | enums.Position.LEFT,
     ) -> Self:
         """Create a component with full screen attributes.
 
@@ -259,7 +221,7 @@ class Component:
             self._invalidate_transform()
 
     @property
-    def anchor(self) -> POSITIONS:
+    def anchor(self) -> enums.Position:
         """The anchor of the component.
 
         Used for aligning the x and y coordinates. `NOOP` defaults to TOP LEFT
@@ -268,9 +230,9 @@ class Component:
         return self._anchor
 
     @anchor.setter
-    def anchor(self, anchor: POSITIONS) -> None:
-        if anchor is POSITIONS.NOOP:
-            self._anchor = POSITIONS.TOP | POSITIONS.LEFT
+    def anchor(self, anchor: enums.Position) -> None:
+        if anchor is enums.Position.NOOP:
+            self._anchor = enums.Position.TOP | enums.Position.LEFT
         else:
             self._anchor = anchor
 
@@ -370,7 +332,7 @@ class Component:
 
         return None
 
-    def snap_to(self, position: POSITIONS) -> None:
+    def snap_to(self, position: enums.Position) -> None:
         """Snap the component's x and y relative to the parent.
 
         Snapping the component's position depends on its anchor.
@@ -384,7 +346,7 @@ class Component:
             ignored and runs normally.
 
         """
-        if position is POSITIONS.NOOP:
+        if position is enums.Position.NOOP:
             return
 
         snap_x = self._x
@@ -397,18 +359,18 @@ class Component:
             parent_width = self.parent._width
             parent_height = self.parent._height
 
-        if POSITIONS.MIDDLE in position:
+        if enums.Position.MIDDLE in position:
             snap_x = parent_width // 2
             snap_y = parent_height // 2
 
-        if POSITIONS.LEFT in position:
+        if enums.Position.LEFT in position:
             snap_x = 0
-        elif POSITIONS.RIGHT in position:
+        elif enums.Position.RIGHT in position:
             snap_x = parent_width
 
-        if POSITIONS.TOP in position:
+        if enums.Position.TOP in position:
             snap_y = 0
-        elif POSITIONS.BOTTOM in position:
+        elif enums.Position.BOTTOM in position:
             snap_y = parent_height
 
         self._x = snap_x
@@ -437,18 +399,18 @@ class Component:
         off_x = 0.0
         off_y = 0.0
 
-        if POSITIONS.MIDDLE in self._anchor:
+        if enums.Position.MIDDLE in self._anchor:
             off_x = self._width / 2
             off_y = self._height / 2
 
-        if POSITIONS.LEFT in self._anchor:
+        if enums.Position.LEFT in self._anchor:
             off_x = 0.0
-        elif POSITIONS.RIGHT in self._anchor:
+        elif enums.Position.RIGHT in self._anchor:
             off_x = self._width
 
-        if POSITIONS.TOP in self._anchor:
+        if enums.Position.TOP in self._anchor:
             off_y = 0.0
-        elif POSITIONS.BOTTOM in self._anchor:
+        elif enums.Position.BOTTOM in self._anchor:
             off_y = self._height
 
         return off_x, off_y

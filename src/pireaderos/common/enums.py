@@ -17,6 +17,43 @@ class Color(enum.IntEnum):
     WHITE = 0xFF
 
 
+class Position(enum.Flag):
+    """The predefined component positions.
+
+    Two positions can be combined to create position combinations. For example,
+    `TOP | LEFT` refers to the TOP LEFT of the component.
+
+    `NOOP` by itself represents a default state depending on the API, however,
+    its presence with other positions can be simply ignored. For example,
+    `NOOP | TOP | LEFT` is equivalent to `TOP | LEFT`.
+
+    Unconventional combinations such as `LEFT | RIGHT` or `TOP | BOTTOM` may
+    result in undefined behavior.
+
+    Attributes:
+      NOOP:
+        Do nothing (no-op).
+      TOP:
+        The TOP position of the component.
+      BOTTOM:
+        The BOTTOM position of the component.
+      MIDDLE:
+        The MIDDLE position of the component.
+      LEFT:
+        The LEFT position of the component.
+      RIGHT:
+        The RIGHT position of the component.
+
+    """
+
+    NOOP = enum.auto()
+    TOP = enum.auto()
+    BOTTOM = enum.auto()
+    MIDDLE = enum.auto()
+    LEFT = enum.auto()
+    RIGHT = enum.auto()
+
+
 class GestureType(enum.StrEnum):
     """The types of gesture events that can be detected.
 

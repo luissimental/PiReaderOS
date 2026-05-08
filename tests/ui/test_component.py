@@ -33,7 +33,7 @@ class TestComponentInitialization:
         assert isinstance(top_level._height, int)
         assert top_level._scale == 1.0
         assert top_level._angle == 0.0
-        assert isinstance(top_level._anchor, component.POSITIONS)
+        assert isinstance(top_level._anchor, enums.Position)
         assert top_level._matrix_dirty
         assert isinstance(
             top_level._local_matrix, matrix.AffineMatrix2D | None
@@ -132,22 +132,17 @@ class TestComponentInitialization:
     @pytest.mark.parametrize(
         "position, expected_anchor",
         [
+            (enums.Position.NOOP, enums.Position.TOP | enums.Position.LEFT),
+            (enums.Position.LEFT, enums.Position.LEFT),
+            (enums.Position.RIGHT, enums.Position.RIGHT),
             (
-                component.POSITIONS.NOOP,
-                component.POSITIONS.TOP | component.POSITIONS.LEFT,
-            ),
-            (component.POSITIONS.LEFT, component.POSITIONS.LEFT),
-            (component.POSITIONS.RIGHT, component.POSITIONS.RIGHT),
-            (
-                component.POSITIONS.TOP | component.POSITIONS.RIGHT,
-                component.POSITIONS.TOP | component.POSITIONS.RIGHT,
+                enums.Position.TOP | enums.Position.RIGHT,
+                enums.Position.TOP | enums.Position.RIGHT,
             ),
         ],
     )
     def test_init_anchor_is_set_unittest(
-        self,
-        position: component.POSITIONS,
-        expected_anchor: component.POSITIONS,
+        self, position: enums.Position, expected_anchor: enums.Position
     ) -> None:
         """Anchor is set after init."""
         top_level = component.Component(
@@ -160,10 +155,7 @@ class TestComponentInitialization:
         """Anchor is set as TOP LEFT after init when omitted."""
         top_level = component.Component(parent=None, width=1, height=1)
 
-        assert (
-            top_level._anchor
-            is component.POSITIONS.TOP | component.POSITIONS.LEFT
-        )
+        assert top_level._anchor is enums.Position.TOP | enums.Position.LEFT
 
 
 class TestComponentFullScreen:
@@ -172,7 +164,7 @@ class TestComponentFullScreen:
     def test_full_screen_component_has_attributes_unittest(self) -> None:
         """Full screen component has proper attributes."""
         top_level = component.Component.full_screen(
-            parent=None, anchor=component.POSITIONS.LEFT
+            parent=None, anchor=enums.Position.LEFT
         )
 
         assert top_level.parent is None
@@ -183,7 +175,7 @@ class TestComponentFullScreen:
         assert top_level._height == constants.Dimensions.HEIGHT
         assert top_level._scale == 1.0
         assert top_level._angle == 0.0
-        assert top_level._anchor is component.POSITIONS.LEFT
+        assert top_level._anchor is enums.Position.LEFT
 
 
 class TestComponentScreenSpaceProperty:
@@ -217,14 +209,14 @@ class TestComponentXProperty:
     @pytest.mark.parametrize(
         "position, expected_x",
         [
-            (component.POSITIONS.TOP | component.POSITIONS.LEFT, 2 + 3),
-            (component.POSITIONS.TOP | component.POSITIONS.MIDDLE, 2 + 3 - 3),
-            (component.POSITIONS.TOP | component.POSITIONS.RIGHT, 2 + 3 - 6),
-            (component.POSITIONS.NOOP | component.POSITIONS.RIGHT, 2 + 3 - 6),
+            (enums.Position.TOP | enums.Position.LEFT, 2 + 3),
+            (enums.Position.TOP | enums.Position.MIDDLE, 2 + 3 - 3),
+            (enums.Position.TOP | enums.Position.RIGHT, 2 + 3 - 6),
+            (enums.Position.NOOP | enums.Position.RIGHT, 2 + 3 - 6),
         ],
     )
     def test_x_gets_absolute_x_on_anchor_unittest(
-        self, position: component.POSITIONS, expected_x: int
+        self, position: enums.Position, expected_x: int
     ) -> None:
         """X gets absolute x value based on anchor."""
         top_level = component.Component(
@@ -244,14 +236,10 @@ class TestComponentXProperty:
 
     @pytest.mark.parametrize(
         "position",
-        [
-            component.POSITIONS.LEFT,
-            component.POSITIONS.MIDDLE,
-            component.POSITIONS.RIGHT,
-        ],
+        [enums.Position.LEFT, enums.Position.MIDDLE, enums.Position.RIGHT],
     )
     def test_x_sets_absolute_x_unittest(
-        self, mocker: pytest_mock.MockerFixture, position: component.POSITIONS
+        self, mocker: pytest_mock.MockerFixture, position: enums.Position
     ) -> None:
         """X sets the absolute x value."""
         top_level = component.Component(
@@ -346,14 +334,14 @@ class TestComponentYProperty:
     @pytest.mark.parametrize(
         "position, expected_y",
         [
-            (component.POSITIONS.LEFT | component.POSITIONS.TOP, 4 + 5),
-            (component.POSITIONS.LEFT | component.POSITIONS.MIDDLE, 4 + 5 - 4),
-            (component.POSITIONS.LEFT | component.POSITIONS.BOTTOM, 4 + 5 - 8),
-            (component.POSITIONS.NOOP | component.POSITIONS.BOTTOM, 4 + 5 - 8),
+            (enums.Position.LEFT | enums.Position.TOP, 4 + 5),
+            (enums.Position.LEFT | enums.Position.MIDDLE, 4 + 5 - 4),
+            (enums.Position.LEFT | enums.Position.BOTTOM, 4 + 5 - 8),
+            (enums.Position.NOOP | enums.Position.BOTTOM, 4 + 5 - 8),
         ],
     )
     def test_y_gets_absolute_y_on_anchor_unittest(
-        self, position: component.POSITIONS, expected_y: int
+        self, position: enums.Position, expected_y: int
     ) -> None:
         """Y gets absolute y value based on anchor."""
         top_level = component.Component(
@@ -373,14 +361,10 @@ class TestComponentYProperty:
 
     @pytest.mark.parametrize(
         "position",
-        [
-            component.POSITIONS.TOP,
-            component.POSITIONS.MIDDLE,
-            component.POSITIONS.BOTTOM,
-        ],
+        [enums.Position.TOP, enums.Position.MIDDLE, enums.Position.BOTTOM],
     )
     def test_y_sets_absolute_y_unittest(
-        self, mocker: pytest_mock.MockerFixture, position: component.POSITIONS
+        self, mocker: pytest_mock.MockerFixture, position: enums.Position
     ) -> None:
         """X sets the absolute x value."""
         top_level = component.Component(
@@ -554,22 +538,17 @@ class TestComponentAnchorProperty:
     @pytest.mark.parametrize(
         "position, expected_anchor",
         [
-            (component.POSITIONS.TOP, component.POSITIONS.TOP),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.MIDDLE),
+            (enums.Position.TOP, enums.Position.TOP),
+            (enums.Position.MIDDLE, enums.Position.MIDDLE),
             (
-                component.POSITIONS.TOP | component.POSITIONS.MIDDLE,
-                component.POSITIONS.TOP | component.POSITIONS.MIDDLE,
+                enums.Position.TOP | enums.Position.MIDDLE,
+                enums.Position.TOP | enums.Position.MIDDLE,
             ),
-            (
-                component.POSITIONS.NOOP,
-                component.POSITIONS.TOP | component.POSITIONS.LEFT,
-            ),
+            (enums.Position.NOOP, enums.Position.TOP | enums.Position.LEFT),
         ],
     )
     def test_anchor_gets_component_anchor_unittest(
-        self,
-        position: component.POSITIONS,
-        expected_anchor: component.POSITIONS,
+        self, position: enums.Position, expected_anchor: enums.Position
     ) -> None:
         """Anchor gets the component anchor."""
         top_level = component.Component(
@@ -581,22 +560,17 @@ class TestComponentAnchorProperty:
     @pytest.mark.parametrize(
         "position, expected_anchor",
         [
-            (component.POSITIONS.TOP, component.POSITIONS.TOP),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.MIDDLE),
+            (enums.Position.TOP, enums.Position.TOP),
+            (enums.Position.MIDDLE, enums.Position.MIDDLE),
             (
-                component.POSITIONS.TOP | component.POSITIONS.MIDDLE,
-                component.POSITIONS.TOP | component.POSITIONS.MIDDLE,
+                enums.Position.TOP | enums.Position.MIDDLE,
+                enums.Position.TOP | enums.Position.MIDDLE,
             ),
-            (
-                component.POSITIONS.NOOP,
-                component.POSITIONS.TOP | component.POSITIONS.LEFT,
-            ),
+            (enums.Position.NOOP, enums.Position.TOP | enums.Position.LEFT),
         ],
     )
     def test_anchor_sets_component_anchor_unittest(
-        self,
-        position: component.POSITIONS,
-        expected_anchor: component.POSITIONS,
+        self, position: enums.Position, expected_anchor: enums.Position
     ) -> None:
         """Anchor sets the component anchor."""
         top_level = component.Component(
@@ -997,19 +971,19 @@ class TestComponentSnapTo:
     @pytest.mark.parametrize(
         "position, expected_x, expected_y",
         [
-            (component.POSITIONS.NOOP, 2, 4),
-            (component.POSITIONS.LEFT, 0, 4),
-            (component.POSITIONS.MIDDLE, 500, 2000),
-            (component.POSITIONS.RIGHT, 1000, 4),
-            (component.POSITIONS.TOP, 2, 0),
-            (component.POSITIONS.BOTTOM, 2, 4000),
-            (component.POSITIONS.BOTTOM | component.POSITIONS.NOOP, 2, 4000),
+            (enums.Position.NOOP, 2, 4),
+            (enums.Position.LEFT, 0, 4),
+            (enums.Position.MIDDLE, 500, 2000),
+            (enums.Position.RIGHT, 1000, 4),
+            (enums.Position.TOP, 2, 0),
+            (enums.Position.BOTTOM, 2, 4000),
+            (enums.Position.BOTTOM | enums.Position.NOOP, 2, 4000),
         ],
     )
     def test_snap_one_position_top_level_unittest(
         self,
         mocker: pytest_mock.MockerFixture,
-        position: component.POSITIONS,
+        position: enums.Position,
         expected_x: int,
         expected_y: int,
     ) -> None:
@@ -1028,17 +1002,17 @@ class TestComponentSnapTo:
     @pytest.mark.parametrize(
         "position1, position2, expected_x, expected_y",
         [
-            (component.POSITIONS.TOP, component.POSITIONS.LEFT, 0, 0),
-            (component.POSITIONS.TOP, component.POSITIONS.MIDDLE, 50, 0),
-            (component.POSITIONS.TOP, component.POSITIONS.RIGHT, 100, 0),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.RIGHT, 100, 5),
-            (component.POSITIONS.BOTTOM, component.POSITIONS.RIGHT, 100, 10),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.BOTTOM, 50, 10),
-            (component.POSITIONS.LEFT, component.POSITIONS.BOTTOM, 0, 10),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.LEFT, 0, 5),
+            (enums.Position.TOP, enums.Position.LEFT, 0, 0),
+            (enums.Position.TOP, enums.Position.MIDDLE, 50, 0),
+            (enums.Position.TOP, enums.Position.RIGHT, 100, 0),
+            (enums.Position.MIDDLE, enums.Position.RIGHT, 100, 5),
+            (enums.Position.BOTTOM, enums.Position.RIGHT, 100, 10),
+            (enums.Position.MIDDLE, enums.Position.BOTTOM, 50, 10),
+            (enums.Position.LEFT, enums.Position.BOTTOM, 0, 10),
+            (enums.Position.MIDDLE, enums.Position.LEFT, 0, 5),
             (
-                component.POSITIONS.NOOP | component.POSITIONS.MIDDLE,
-                component.POSITIONS.LEFT,
+                enums.Position.NOOP | enums.Position.MIDDLE,
+                enums.Position.LEFT,
                 0,
                 5,
             ),
@@ -1047,8 +1021,8 @@ class TestComponentSnapTo:
     def test_snap_two_positions_top_level_unittest(
         self,
         mocker: pytest_mock.MockerFixture,
-        position1: component.POSITIONS,
-        position2: component.POSITIONS,
+        position1: enums.Position,
+        position2: enums.Position,
         expected_x: int,
         expected_y: int,
     ) -> None:
@@ -1067,17 +1041,17 @@ class TestComponentSnapTo:
     @pytest.mark.parametrize(
         "position, expected_x, expected_y",
         [
-            (component.POSITIONS.NOOP, 2, 4),
-            (component.POSITIONS.LEFT, 0, 4),
-            (component.POSITIONS.MIDDLE, 500, 2000),
-            (component.POSITIONS.RIGHT, 1000, 4),
-            (component.POSITIONS.TOP, 2, 0),
-            (component.POSITIONS.BOTTOM, 2, 4000),
-            (component.POSITIONS.BOTTOM | component.POSITIONS.NOOP, 2, 4000),
+            (enums.Position.NOOP, 2, 4),
+            (enums.Position.LEFT, 0, 4),
+            (enums.Position.MIDDLE, 500, 2000),
+            (enums.Position.RIGHT, 1000, 4),
+            (enums.Position.TOP, 2, 0),
+            (enums.Position.BOTTOM, 2, 4000),
+            (enums.Position.BOTTOM | enums.Position.NOOP, 2, 4000),
         ],
     )
     def test_snap_one_position_child_unittest(
-        self, position: component.POSITIONS, expected_x: int, expected_y: int
+        self, position: enums.Position, expected_x: int, expected_y: int
     ) -> None:
         """Snap has one position for child component."""
         top_level = component.Component(
@@ -1095,17 +1069,17 @@ class TestComponentSnapTo:
     @pytest.mark.parametrize(
         "position1, position2, expected_x, expected_y",
         [
-            (component.POSITIONS.TOP, component.POSITIONS.LEFT, 0, 0),
-            (component.POSITIONS.TOP, component.POSITIONS.MIDDLE, 50, 0),
-            (component.POSITIONS.TOP, component.POSITIONS.RIGHT, 100, 0),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.RIGHT, 100, 5),
-            (component.POSITIONS.BOTTOM, component.POSITIONS.RIGHT, 100, 10),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.BOTTOM, 50, 10),
-            (component.POSITIONS.LEFT, component.POSITIONS.BOTTOM, 0, 10),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.LEFT, 0, 5),
+            (enums.Position.TOP, enums.Position.LEFT, 0, 0),
+            (enums.Position.TOP, enums.Position.MIDDLE, 50, 0),
+            (enums.Position.TOP, enums.Position.RIGHT, 100, 0),
+            (enums.Position.MIDDLE, enums.Position.RIGHT, 100, 5),
+            (enums.Position.BOTTOM, enums.Position.RIGHT, 100, 10),
+            (enums.Position.MIDDLE, enums.Position.BOTTOM, 50, 10),
+            (enums.Position.LEFT, enums.Position.BOTTOM, 0, 10),
+            (enums.Position.MIDDLE, enums.Position.LEFT, 0, 5),
             (
-                component.POSITIONS.MIDDLE | component.POSITIONS.NOOP,
-                component.POSITIONS.LEFT,
+                enums.Position.MIDDLE | enums.Position.NOOP,
+                enums.Position.LEFT,
                 0,
                 5,
             ),
@@ -1113,8 +1087,8 @@ class TestComponentSnapTo:
     )
     def test_snap_two_positions_child_unittest(
         self,
-        position1: component.POSITIONS,
-        position2: component.POSITIONS,
+        position1: enums.Position,
+        position2: enums.Position,
         expected_x: int,
         expected_y: int,
     ) -> None:
@@ -1207,16 +1181,16 @@ class TestComponentGetAnchorOffsets:
     @pytest.mark.parametrize(
         "position, expected_x, expected_y",
         [
-            (component.POSITIONS.LEFT, 0, 0),
-            (component.POSITIONS.MIDDLE, 500, 2000),
-            (component.POSITIONS.RIGHT, 1000, 0),
-            (component.POSITIONS.TOP, 0, 0),
-            (component.POSITIONS.BOTTOM, 0, 4000),
-            (component.POSITIONS.BOTTOM | component.POSITIONS.NOOP, 0, 4000),
+            (enums.Position.LEFT, 0, 0),
+            (enums.Position.MIDDLE, 500, 2000),
+            (enums.Position.RIGHT, 1000, 0),
+            (enums.Position.TOP, 0, 0),
+            (enums.Position.BOTTOM, 0, 4000),
+            (enums.Position.BOTTOM | enums.Position.NOOP, 0, 4000),
         ],
     )
     def test_get_correct_anchor_offsets_on_one_position_unittest(
-        self, position: component.POSITIONS, expected_x: int, expected_y: int
+        self, position: enums.Position, expected_x: int, expected_y: int
     ) -> None:
         """Get correct anchor offsets on anchor with one position."""
         top_level = component.Component(
@@ -1231,17 +1205,17 @@ class TestComponentGetAnchorOffsets:
     @pytest.mark.parametrize(
         "position1, position2, expected_x, expected_y",
         [
-            (component.POSITIONS.TOP, component.POSITIONS.LEFT, 0, 0),
-            (component.POSITIONS.TOP, component.POSITIONS.MIDDLE, 50, 0),
-            (component.POSITIONS.TOP, component.POSITIONS.RIGHT, 100, 0),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.RIGHT, 100, 5),
-            (component.POSITIONS.BOTTOM, component.POSITIONS.RIGHT, 100, 10),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.BOTTOM, 50, 10),
-            (component.POSITIONS.LEFT, component.POSITIONS.BOTTOM, 0, 10),
-            (component.POSITIONS.MIDDLE, component.POSITIONS.LEFT, 0, 5),
+            (enums.Position.TOP, enums.Position.LEFT, 0, 0),
+            (enums.Position.TOP, enums.Position.MIDDLE, 50, 0),
+            (enums.Position.TOP, enums.Position.RIGHT, 100, 0),
+            (enums.Position.MIDDLE, enums.Position.RIGHT, 100, 5),
+            (enums.Position.BOTTOM, enums.Position.RIGHT, 100, 10),
+            (enums.Position.MIDDLE, enums.Position.BOTTOM, 50, 10),
+            (enums.Position.LEFT, enums.Position.BOTTOM, 0, 10),
+            (enums.Position.MIDDLE, enums.Position.LEFT, 0, 5),
             (
-                component.POSITIONS.MIDDLE | component.POSITIONS.NOOP,
-                component.POSITIONS.LEFT,
+                enums.Position.MIDDLE | enums.Position.NOOP,
+                enums.Position.LEFT,
                 0,
                 5,
             ),
@@ -1249,8 +1223,8 @@ class TestComponentGetAnchorOffsets:
     )
     def test_get_correct_anchor_offsets_on_two_positions_unittest(
         self,
-        position1: component.POSITIONS,
-        position2: component.POSITIONS,
+        position1: enums.Position,
+        position2: enums.Position,
         expected_x: int,
         expected_y: int,
     ) -> None:
@@ -1342,17 +1316,17 @@ class TestComponentGetLocalMatrix:
     @pytest.mark.parametrize(
         "position, expected_tx, expected_ty",
         [
-            (component.POSITIONS.LEFT, 0, 0),
-            (component.POSITIONS.MIDDLE, -5, -20),
-            (component.POSITIONS.RIGHT, -10, 0),
-            (component.POSITIONS.TOP, 0, 0),
-            (component.POSITIONS.BOTTOM, 0, -40),
-            (component.POSITIONS.BOTTOM | component.POSITIONS.NOOP, 0, -40),
+            (enums.Position.LEFT, 0, 0),
+            (enums.Position.MIDDLE, -5, -20),
+            (enums.Position.RIGHT, -10, 0),
+            (enums.Position.TOP, 0, 0),
+            (enums.Position.BOTTOM, 0, -40),
+            (enums.Position.BOTTOM | enums.Position.NOOP, 0, -40),
         ],
     )
     def test_get_returns_anchor_translate_matrix_unittest(
         self,
-        position: component.POSITIONS,
+        position: enums.Position,
         expected_tx: float,
         expected_ty: float,
     ) -> None:
