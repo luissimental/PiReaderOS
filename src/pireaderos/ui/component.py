@@ -3,8 +3,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Self
 
-from pireaderos.common import constants, enums
-from pireaderos.ui import matrix
+from pireaderos.common import constants, enums, matrix
 
 if TYPE_CHECKING:
     from pireaderos.common import models
