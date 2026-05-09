@@ -779,7 +779,7 @@ class TestComponentActivateBehavior:
 
         top_level.activate_behavior(behavior, mock_gesture)
 
-        mock_handle_gesture.assert_called_once_with(mock_gesture)
+        mock_handle_gesture.assert_called_once_with(top_level, mock_gesture)
 
     def test_activate_no_present_behavior_unittest(
         self, mocker: pytest_mock.MockerFixture
@@ -819,8 +819,8 @@ class TestComponentActivateBehaviors:
 
         top_level.activate_behaviors(mock_gesture)
 
-        mock_handle_gesture1.assert_called_once_with(mock_gesture)
-        mock_handle_gesture2.assert_called_once_with(mock_gesture)
+        mock_handle_gesture1.assert_called_once_with(top_level, mock_gesture)
+        mock_handle_gesture2.assert_called_once_with(top_level, mock_gesture)
 
 
 class TestDispatchGesture:

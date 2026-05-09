@@ -1,14 +1,12 @@
-import pytest
 import pytest_mock
 
 from pireaderos.common import enums, models
+from pireaderos.ui import component
 from pireaderos.ui.behavior import tap
 
 
-@pytest.fixture
-def on_tap(mocker: pytest_mock.MockerFixture) -> pytest_mock.MockType:
-    """Mock an on_hold callback."""
-    return mocker.Mock()
+@tap.behavior_action
+def _on_tap(arg1: component.Component, arg2: models.GestureEvent) -> None: ...
 
 
 def create_tap_gesture() -> models.GestureEvent:
@@ -30,13 +28,23 @@ def create_drag_gesture() -> models.GestureEvent:
 class TestTapBehaviorInitialization:
     """Test TapBehavior initialization."""
 
-    def test_init_is_working_unittest(
-        self, on_tap: pytest_mock.MockType
-    ) -> None:
+    def test_init_is_working_unittest(self) -> None:
         """All attributes are present."""
-        behavior = tap.TapBehavior(on_tap=on_tap)
+        behavior = tap.TapBehavior(on_tap=_on_tap)
 
-        assert behavior._on_tap_callback is on_tap
+        assert behavior._on_tap_callback is _on_tap
+
+    def test_init_argument_signatures_unittest(self) -> None:
+        """Behavior accepts callback signatures."""
+
+        @tap.behavior_action
+        def _on_tap2(
+            arg1: component.Component, arg2: models.GestureEvent
+        ) -> None: ...
+
+        behavior = tap.TapBehavior(on_tap=_on_tap2)
+
+        assert behavior._on_tap_callback is _on_tap2
 
 
 class TestTapBehaviorHandleGesture:
@@ -47,25 +55,22 @@ class TestTapBehaviorHandleGesture:
     ) -> None:
         """Handle tap gesture."""
         behavior = tap.TapBehavior()
-        mock_on_tap = mocker.patch.object(
-            behavior, "_on_tap", return_value=None
-        )
+        mock_on_tap = mocker.patch.object(behavior, "_on_tap")
+        mock_component = mocker.Mock()
         gesture = create_tap_gesture()
 
-        behavior.handle_gesture(gesture)
+        behavior.handle_gesture(mock_component, gesture)
 
-        mock_on_tap.assert_called_once_with(gesture)
+        mock_on_tap.assert_called_once_with(mock_component, gesture)
 
     def test_handle_skips_wrong_gesture_type_unittest(
         self, mocker: pytest_mock.MockerFixture
     ) -> None:
         """Skip wrong gesture type."""
         behavior = tap.TapBehavior()
-        mock_on_tap = mocker.patch.object(
-            behavior, "_on_tap", return_value=None
-        )
+        mock_on_tap = mocker.patch.object(behavior, "_on_tap")
 
-        behavior.handle_gesture(create_drag_gesture())
+        behavior.handle_gesture(mocker.Mock(), create_drag_gesture())
 
         mock_on_tap.assert_not_called()
 
@@ -74,18 +79,25 @@ class TestTapBehaviorOnTap:
     """Test TapBehavior _on_tap."""
 
     def test_on_tap_calls_callback_unittest(
-        self, on_tap: pytest_mock.MockType
+        self, mocker: pytest_mock.MockerFixture
     ) -> None:
         """On tap calls callback."""
-        behavior = tap.TapBehavior(on_tap=on_tap)
+        behavior = tap.TapBehavior(on_tap=_on_tap)
+        mock_safe_call = mocker.patch.object(behavior, "_safe_call")
+        mock_component = mocker.Mock()
         gesture = create_tap_gesture()
 
-        behavior._on_tap(gesture)
+        behavior._on_tap(mock_component, gesture)
 
-        on_tap.assert_called_once_with(gesture)
+        mock_safe_call.assert_called_once_with(
+            _on_tap, mock_component, gesture
+        )
 
-    def test_on_tap_skips_none_callback_unittest(self) -> None:
+    def test_on_tap_skips_none_callback_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """On hold skips when callback is None."""
         behavior = tap.TapBehavior()
 
-        behavior._on_tap(create_tap_gesture())  # does not raise error
+        # Does not raise error
+        behavior._on_tap(mocker.Mock(), create_tap_gesture())

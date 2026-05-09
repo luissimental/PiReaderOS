@@ -294,12 +294,12 @@ class Component:
     ) -> None:
         """Pass a gesture to a behavior if present."""
         if behavior in self._behaviors:
-            behavior.handle_gesture(gesture)
+            behavior.handle_gesture(self, gesture)
 
     def activate_behaviors(self, gesture: models.GestureEvent) -> None:
         """Pass a gesture to all behaviors."""
         for behavior in self._behaviors:
-            behavior.handle_gesture(gesture)
+            behavior.handle_gesture(self, gesture)
 
     def dispatch_gesture(
         self, gesture: models.GestureEvent
