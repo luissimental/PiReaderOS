@@ -263,6 +263,15 @@ class Component:
     def add_behavior(self, behavior: base.BaseBehavior) -> None:
         """Add a behavior to the component.
 
+        If behavior type is already present, do nothing.
+        """
+        present_behavior = self.get_behavior(type(behavior))
+        if present_behavior is None:
+            self._behaviors.add(behavior)
+
+    def update_behavior(self, behavior: base.BaseBehavior) -> None:
+        """Add or replace a behavior to the component.
+
         If behavior type is already present, replace it with the new behavior.
         """
         present_behavior = self.get_behavior(type(behavior))
@@ -285,7 +294,7 @@ class Component:
         """Remove a behavior from the component if present."""
         self._behaviors.discard(behavior)
 
-    def remove_behaviors(self) -> None:
+    def remove_all_behaviors(self) -> None:
         """Remove all behaviors from the component."""
         self._behaviors.clear()
 
@@ -296,7 +305,7 @@ class Component:
         if behavior in self._behaviors:
             behavior.handle_gesture(self, gesture)
 
-    def activate_behaviors(self, gesture: models.GestureEvent) -> None:
+    def activate_all_behaviors(self, gesture: models.GestureEvent) -> None:
         """Pass a gesture to all behaviors."""
         for behavior in self._behaviors:
             behavior.handle_gesture(self, gesture)
@@ -326,7 +335,7 @@ class Component:
 
         # Dispatch gesture to all behaviors
         if self.was_touched(point.x, point.y):
-            self.activate_behaviors(gesture)
+            self.activate_all_behaviors(gesture)
             return self
 
         return None

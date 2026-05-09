@@ -682,14 +682,40 @@ class TestComponentAddBehavior:
         assert len(top_level._behaviors) == 1
         assert behavior in top_level._behaviors
 
-    def test_add_replace_behavior_unittest(self) -> None:
-        """Replace present behavior with new behavior."""
+    def test_add_behavior_skips_when_present_unittest(self) -> None:
+        """Skip when a behavior of the same type is present."""
         top_level = component.Component.full_screen(parent=None)
         behavior1 = hold.HoldBehavior()
         behavior2 = hold.HoldBehavior()
         top_level._behaviors.add(behavior1)
 
         top_level.add_behavior(behavior2)
+
+        assert len(top_level._behaviors) == 1
+        assert behavior1 in top_level._behaviors
+
+
+class TestComponentUpdateBehavior:
+    """Test Component update_behavior."""
+
+    def test_update_new_behavior_to_component_unittest(self) -> None:
+        """Add behavior to component."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior = hold.HoldBehavior()
+
+        top_level.update_behavior(behavior)
+
+        assert len(top_level._behaviors) == 1
+        assert behavior in top_level._behaviors
+
+    def test_update_replace_behavior_unittest(self) -> None:
+        """Replace present behavior with new behavior."""
+        top_level = component.Component.full_screen(parent=None)
+        behavior1 = hold.HoldBehavior()
+        behavior2 = hold.HoldBehavior()
+        top_level._behaviors.add(behavior1)
+
+        top_level.update_behavior(behavior2)
 
         assert len(top_level._behaviors) == 1
         assert behavior2 in top_level._behaviors
@@ -748,15 +774,15 @@ class TestComponentRemoveBehavior:
         assert behavior1 in top_level._behaviors
 
 
-class TestComponentRemoveBehaviors:
-    """Test Component remove_behaviors."""
+class TestComponentRemoveAllBehaviors:
+    """Test Component remove_all_behaviors."""
 
     def test_remove_all_behaviors_unittest(self) -> None:
         """Remove all behaviors."""
         top_level = component.Component.full_screen(parent=None)
         top_level._behaviors.update((hold.HoldBehavior(), drag.DragBehavior()))
 
-        top_level.remove_behaviors()
+        top_level.remove_all_behaviors()
 
         assert len(top_level._behaviors) == 0
 
@@ -797,8 +823,8 @@ class TestComponentActivateBehavior:
         mock_handle_gesture.assert_not_called()
 
 
-class TestComponentActivateBehaviors:
-    """Test Component activate_behaviors."""
+class TestComponentActivateAllBehaviors:
+    """Test Component activate_all_behaviors."""
 
     def test_activate_all_behaviors_unittest(
         self, mocker: pytest_mock.MockerFixture
@@ -817,7 +843,7 @@ class TestComponentActivateBehaviors:
             behavior2, "handle_gesture", return_value=None
         )
 
-        top_level.activate_behaviors(mock_gesture)
+        top_level.activate_all_behaviors(mock_gesture)
 
         mock_handle_gesture1.assert_called_once_with(top_level, mock_gesture)
         mock_handle_gesture2.assert_called_once_with(top_level, mock_gesture)
@@ -838,7 +864,7 @@ class TestDispatchGesture:
         gesture.end_point.y = 10
 
         mock_activate = mocker.patch.object(
-            top_level, "activate_behaviors", return_value=None
+            top_level, "activate_all_behaviors", return_value=None
         )
 
         result = top_level.dispatch_gesture(gesture)
@@ -858,7 +884,7 @@ class TestDispatchGesture:
         gesture.end_point.y = 10
 
         mock_activate = mocker.patch.object(
-            top_level, "activate_behaviors", return_value=None
+            top_level, "activate_all_behaviors", return_value=None
         )
 
         result = top_level.dispatch_gesture(gesture)
@@ -880,7 +906,7 @@ class TestDispatchGesture:
             gesture.mid_point.y = 10
 
         mock_activate = mocker.patch.object(
-            top_level, "activate_behaviors", return_value=None
+            top_level, "activate_all_behaviors", return_value=None
         )
 
         result = top_level.dispatch_gesture(gesture)
@@ -902,7 +928,7 @@ class TestDispatchGesture:
             gesture.mid_point.y = 10
 
         mock_activate = mocker.patch.object(
-            top_level, "activate_behaviors", return_value=None
+            top_level, "activate_all_behaviors", return_value=None
         )
 
         result = top_level.dispatch_gesture(gesture)
@@ -925,10 +951,10 @@ class TestDispatchGesture:
         gesture.end_point.y = 20
 
         mock_top_level_activate = mocker.patch.object(
-            top_level, "activate_behaviors", return_value=None
+            top_level, "activate_all_behaviors", return_value=None
         )
         mock_child_activate = mocker.patch.object(
-            child, "activate_behaviors", return_value=None
+            child, "activate_all_behaviors", return_value=None
         )
 
         result = top_level.dispatch_gesture(gesture)
@@ -952,10 +978,10 @@ class TestDispatchGesture:
         gesture.end_point.y = 20
 
         mock_top_level_activate = mocker.patch.object(
-            top_level, "activate_behaviors", return_value=None
+            top_level, "activate_all_behaviors", return_value=None
         )
         mock_child_activate = mocker.patch.object(
-            child, "activate_behaviors", return_value=None
+            child, "activate_all_behaviors", return_value=None
         )
 
         result = top_level.dispatch_gesture(gesture)
