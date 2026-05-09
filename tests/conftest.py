@@ -1,9 +1,12 @@
-import pytest
+import sys
 import warnings
+from unittest import mock
+
+import pytest
 
 
-def pytest_collection_modifyitems(items):
-    """Assign tests with 'unittest' or 'integration' markers"""
+def pytest_collection_modifyitems(items) -> None:
+    """Assign tests with 'unittest' or 'integration' markers."""
     for item in items:
         test_type = item.originalname.split("_")[-1]
         if test_type == "unittest":
@@ -17,3 +20,6 @@ def pytest_collection_modifyitems(items):
                     "'_unittest' or '_integration' for marker assignment."
                 )
             )
+
+
+sys.modules["spidev"] = mock.MagicMock()
