@@ -452,6 +452,28 @@ class TestComponentYRelProperty:
         spy_invalidate.assert_not_called()
 
 
+class TestComponentWidthProperty:
+    """Test Component width property."""
+
+    def test_width_gets_component_width_unittest(self) -> None:
+        """Width gets component width."""
+        top_level = component.Component(parent=None, width=5, height=20)
+        top_level._scale = 2.0
+
+        assert top_level.width == 10
+
+
+class TestComponentHeightProperty:
+    """Test Component height property."""
+
+    def test_height_gets_component_height_unittest(self) -> None:
+        """Height gets component height."""
+        top_level = component.Component(parent=None, width=5, height=20)
+        top_level._scale = 2.0
+
+        assert top_level.height == 40
+
+
 class TestComponentScaleProperty:
     """Test Component scale property."""
 

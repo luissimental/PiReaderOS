@@ -198,6 +198,16 @@ class Component:
             self._invalidate_transform()
 
     @property
+    def width(self) -> int:
+        """The width of the component in pixels."""
+        return int(self._width * self._scale)
+
+    @property
+    def height(self) -> int:
+        """The height of the component in pixels."""
+        return int(self._height * self._scale)
+
+    @property
     def scale(self) -> float:
         """The component's scale factor."""
         return self._scale
