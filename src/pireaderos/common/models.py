@@ -59,3 +59,10 @@ class GestureEvent:
     swipe_direction: enums.SwipeDirection | None = None
     scaling_factor: float = 1.0
     rotation_degrees: float = 0.0
+
+
+class Percent:
+    """Fetch a percentage of the attribute at runtime."""
+
+    def __init__(self, amount: int) -> None:
+        self.amount = amount / 100

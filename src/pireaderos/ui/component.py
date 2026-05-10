@@ -7,6 +7,7 @@ from pireaderos.common import constants, enums, matrix
 
 if TYPE_CHECKING:
     from pireaderos.common import models
+    from pireaderos.render import strategy
     from pireaderos.ui.behavior import base
 
 
@@ -29,6 +30,9 @@ class Component:
       children:
         A list of child components, ordered from bottom (index 0) to top
         (index -1) visually.
+      render:
+        The component's render strategy, which defines how the component will
+        render.
 
     """
 
@@ -41,6 +45,7 @@ class Component:
         width: int,
         height: int,
         anchor: enums.Position = enums.Position.TOP | enums.Position.LEFT,
+        render: strategy.RenderStrategy | None = None,
     ) -> None:
         """Initialize the component.
 
@@ -64,6 +69,9 @@ class Component:
           anchor:
             The anchor of the component used for aligning the x and y
             coordinates. `NOOP` defaults to TOP LEFT of the component.
+          render:
+            The initial render strategy for the component. May be a predefined
+            strategy or None.
 
         """
         msg = ""
@@ -93,6 +101,8 @@ class Component:
         else:
             self._anchor = anchor
 
+        self.render = render
+
         # Flag for detecting changes in x, y, scale, or angle
         self._matrix_dirty: bool = True
         # Cache matrices to speed up computation
@@ -106,6 +116,7 @@ class Component:
         cls,
         parent: Component | None,
         anchor: enums.Position = enums.Position.TOP | enums.Position.LEFT,
+        render: strategy.RenderStrategy | None = None,
     ) -> Self:
         """Create a component with full screen attributes.
 
@@ -119,6 +130,9 @@ class Component:
           anchor:
             The anchor of the component used for aligning the x and y
             coordinates. `NOOP` defaults to TOP LEFT of the component.
+          render:
+            The initial render strategy for the component. May be a predefined
+            strategy or None.
 
         Returns:
           The full screen component object.
@@ -129,6 +143,7 @@ class Component:
             width=constants.Dimensions.WIDTH,
             height=constants.Dimensions.HEIGHT,
             anchor=anchor,
+            render=render,
         )
 
     @property
