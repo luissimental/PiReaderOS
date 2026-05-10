@@ -28,9 +28,15 @@ class RenderStep:
             pillow.ImageDrawMethod.RECTANGLE,
             pillow.ImageDrawMethod.ROUNDED_RECTANGLE,
         ):
+            # Convert local space to screen space
+            x, y = owner.screen_space
+            resolved["x"] += x
+            resolved["y"] += y
+
             width: int | models.Percent = resolved["width"]
             height: int | models.Percent = resolved["height"]
 
+            # Resolve percentages
             if isinstance(width, models.Percent):
                 resolved["width"] = int(owner.width * width.amount)
             if isinstance(height, models.Percent):

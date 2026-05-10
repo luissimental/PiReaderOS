@@ -64,6 +64,28 @@ class TestRectangle:
         assert rect_step.kwargs["thickness"] == 25
         assert rect_step.kwargs["outline"] is enums.Color.BLACK
 
+    def test_rectangle_resolve_x_and_y_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Resolve rectangle x and y."""
+        rect_step = step.rectangle(
+            x=5,
+            y=10,
+            width=200,
+            height=10,
+            fill=enums.Color.WHITE,
+            thickness=25,
+            outline=enums.Color.BLACK,
+        )
+        mock_component = mocker.Mock()
+        mock_component.screen_space = 2000, 1000
+
+        resolved = rect_step.resolve_kwargs(mock_component)
+
+        assert len(resolved) == 7
+        assert resolved["x"] == 2005
+        assert resolved["y"] == 1010
+
     def test_rectangle_resolve_width_unittest(
         self, mocker: pytest_mock.MockerFixture
     ) -> None:
@@ -78,6 +100,7 @@ class TestRectangle:
             outline=enums.Color.BLACK,
         )
         mock_component = mocker.Mock()
+        mock_component.screen_space = 2000, 1000
         mock_component.width = 200
 
         resolved = rect_step.resolve_kwargs(mock_component)
@@ -100,6 +123,7 @@ class TestRectangle:
             outline=enums.Color.BLACK,
         )
         mock_component = mocker.Mock()
+        mock_component.screen_space = 2000, 1000
         mock_component.height = 10
 
         resolved = rect_step.resolve_kwargs(mock_component)
@@ -138,6 +162,30 @@ class TestRoundedRectangle:
         assert rect_step.kwargs["radius"] == 30
         assert rect_step.kwargs["corners"] is corners
 
+    def test_rounded_rectangle_resolve_x_and_y_unittest(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
+        """Resolve rounded rectangle x and y."""
+        rect_step = step.rounded_rectangle(
+            x=5,
+            y=10,
+            width=15,
+            height=20,
+            fill=enums.Color.WHITE,
+            thickness=25,
+            outline=enums.Color.BLACK,
+            radius=30,
+            corners=None,
+        )
+        mock_component = mocker.Mock()
+        mock_component.screen_space = 2000, 1000
+
+        resolved = rect_step.resolve_kwargs(mock_component)
+
+        assert len(resolved) == 9
+        assert resolved["x"] == 2005
+        assert resolved["y"] == 1010
+
     def test_rounded_rectangle_resolve_width_unittest(
         self, mocker: pytest_mock.MockerFixture
     ) -> None:
@@ -154,6 +202,7 @@ class TestRoundedRectangle:
             corners=None,
         )
         mock_component = mocker.Mock()
+        mock_component.screen_space = 2000, 1000
         mock_component.width = 200
 
         resolved = rect_step.resolve_kwargs(mock_component)
@@ -178,6 +227,7 @@ class TestRoundedRectangle:
             corners=None,
         )
         mock_component = mocker.Mock()
+        mock_component.screen_space = 2000, 1000
         mock_component.height = 10
 
         resolved = rect_step.resolve_kwargs(mock_component)
