@@ -30,7 +30,7 @@ class Component:
       children:
         A list of child components, ordered from bottom (index 0) to top
         (index -1) visually.
-      render:
+      render_strategy:
         The component's render strategy, which defines how the component will
         render.
 
@@ -45,7 +45,7 @@ class Component:
         width: int,
         height: int,
         anchor: enums.Position = enums.Position.TOP | enums.Position.LEFT,
-        render: strategy.RenderStrategy | None = None,
+        render_strategy: strategy.RenderStrategy | None = None,
     ) -> None:
         """Initialize the component.
 
@@ -69,7 +69,7 @@ class Component:
           anchor:
             The anchor of the component used for aligning the x and y
             coordinates. `NOOP` defaults to TOP LEFT of the component.
-          render:
+          render_strategy:
             The initial render strategy for the component. May be a predefined
             strategy or None.
 
@@ -101,7 +101,7 @@ class Component:
         else:
             self._anchor = anchor
 
-        self.render = render
+        self.render_strategy = render_strategy
 
         # Flag for detecting changes in x, y, scale, or angle
         self._matrix_dirty: bool = True
@@ -116,7 +116,7 @@ class Component:
         cls,
         parent: Component | None,
         anchor: enums.Position = enums.Position.TOP | enums.Position.LEFT,
-        render: strategy.RenderStrategy | None = None,
+        render_strategy: strategy.RenderStrategy | None = None,
     ) -> Self:
         """Create a component with full screen attributes.
 
@@ -130,7 +130,7 @@ class Component:
           anchor:
             The anchor of the component used for aligning the x and y
             coordinates. `NOOP` defaults to TOP LEFT of the component.
-          render:
+          render_strategy:
             The initial render strategy for the component. May be a predefined
             strategy or None.
 
@@ -143,7 +143,7 @@ class Component:
             width=constants.Dimensions.WIDTH,
             height=constants.Dimensions.HEIGHT,
             anchor=anchor,
-            render=render,
+            render_strategy=render_strategy,
         )
 
     @property

@@ -35,7 +35,9 @@ class TestComponentInitialization:
         assert top_level._scale == 1.0
         assert top_level._angle == 0.0
         assert isinstance(top_level._anchor, enums.Position)
-        assert isinstance(top_level.render, strategy.RenderStrategy | None)
+        assert isinstance(
+            top_level.render_strategy, strategy.RenderStrategy | None
+        )
         assert top_level._matrix_dirty
         assert isinstance(
             top_level._local_matrix, matrix.AffineMatrix2D | None
@@ -169,7 +171,9 @@ class TestComponentFullScreen:
         """Full screen component has proper attributes."""
         mock_strategy = mocker.Mock()
         top_level = component.Component.full_screen(
-            parent=None, anchor=enums.Position.LEFT, render=mock_strategy
+            parent=None,
+            anchor=enums.Position.LEFT,
+            render_strategy=mock_strategy,
         )
 
         assert top_level.parent is None
@@ -181,7 +185,7 @@ class TestComponentFullScreen:
         assert top_level._scale == 1.0
         assert top_level._angle == 0.0
         assert top_level._anchor is enums.Position.LEFT
-        assert top_level.render is mock_strategy
+        assert top_level.render_strategy is mock_strategy
 
 
 class TestComponentScreenSpaceProperty:
