@@ -39,8 +39,13 @@ class RenderStep:
             # Resolve percentages
             if isinstance(width, models.Percent):
                 resolved["width"] = int(owner.width * width.amount)
+            else:
+                resolved["width"] = int(width * owner.scale)
+
             if isinstance(height, models.Percent):
                 resolved["height"] = int(owner.height * height.amount)
+            else:
+                resolved["height"] = int(height * owner.scale)
 
         return resolved
 

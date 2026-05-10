@@ -79,6 +79,7 @@ class TestRectangle:
         )
         mock_component = mocker.Mock()
         mock_component.screen_space = 2000, 1000
+        mock_component.scale = 2.0
 
         resolved = rect_step.resolve_kwargs(mock_component)
 
@@ -102,12 +103,13 @@ class TestRectangle:
         mock_component = mocker.Mock()
         mock_component.screen_space = 2000, 1000
         mock_component.width = 200
+        mock_component.scale = 2.0
 
         resolved = rect_step.resolve_kwargs(mock_component)
 
         assert len(resolved) == 7
         assert resolved["width"] == 100
-        assert resolved["height"] == 10
+        assert resolved["height"] == 20
 
     def test_rectangle_resolve_height_unittest(
         self, mocker: pytest_mock.MockerFixture
@@ -125,11 +127,12 @@ class TestRectangle:
         mock_component = mocker.Mock()
         mock_component.screen_space = 2000, 1000
         mock_component.height = 10
+        mock_component.scale = 2.0
 
         resolved = rect_step.resolve_kwargs(mock_component)
 
         assert len(resolved) == 7
-        assert resolved["width"] == 200
+        assert resolved["width"] == 400
         assert resolved["height"] == 5
 
 
@@ -179,6 +182,7 @@ class TestRoundedRectangle:
         )
         mock_component = mocker.Mock()
         mock_component.screen_space = 2000, 1000
+        mock_component.scale = 2.0
 
         resolved = rect_step.resolve_kwargs(mock_component)
 
@@ -204,12 +208,13 @@ class TestRoundedRectangle:
         mock_component = mocker.Mock()
         mock_component.screen_space = 2000, 1000
         mock_component.width = 200
+        mock_component.scale = 2.0
 
         resolved = rect_step.resolve_kwargs(mock_component)
 
         assert len(resolved) == 9
         assert resolved["width"] == 100
-        assert resolved["height"] == 10
+        assert resolved["height"] == 20
 
     def test_rounded_rectangle_resolve_height_unittest(
         self, mocker: pytest_mock.MockerFixture
@@ -229,9 +234,10 @@ class TestRoundedRectangle:
         mock_component = mocker.Mock()
         mock_component.screen_space = 2000, 1000
         mock_component.height = 10
+        mock_component.scale = 2.0
 
         resolved = rect_step.resolve_kwargs(mock_component)
 
         assert len(resolved) == 9
-        assert resolved["width"] == 200
+        assert resolved["width"] == 400
         assert resolved["height"] == 5
